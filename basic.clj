@@ -661,6 +661,57 @@
 ; false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn palabra-reservada? [x]
+  (case x
+    LOAD true
+    SAVE true
+    INPUT true
+    PRINT true
+    ? true
+    DATA true
+    READ true
+    REM true
+    RESTORE true
+    CLEAR true
+    LET true
+    LIST true
+    NEW true
+    RUN true
+    END true
+    FOR true
+    TO true
+    NEXT true
+    STEP true
+    GOSUB true
+    RETURN true
+    GOTO true
+    IF true
+    ON true
+    ENV true
+    EXIT true
+    ATN true
+    INT true
+    SIN true
+    LEN true
+    MID$ true
+    ASC true
+    CHR$ true
+    STR$ true
+    + true
+    - true
+    * true
+    / true
+    ; ^ true
+    = true
+    <> true
+    < true
+    <= true
+    > true
+    >= true
+    AND true
+    OR true
+    false
+  )
+  ; (= x 'REM) ; FIXME prueba para el test
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -674,6 +725,8 @@
 ; false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn operador? [x]
+  (or (= x '+) (= x (symbol "+"))) ; FIXME prueba para el test
+  ; TODO
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
