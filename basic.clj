@@ -725,8 +725,23 @@
 ; false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn operador? [x]
-  (or (= x '+) (= x (symbol "+"))) ; FIXME prueba para el test
-  ; TODO
+  ; (or (= x '+) (= x (symbol "+"))) ; FIXME prueba para el test
+  (case x
+    + true
+    - true
+    * true
+    / true
+    \^ true ; necesario escaparlo
+    = true
+    <> true
+    < true
+    <= true
+    > true
+    >= true
+    AND true
+    OR true
+    false
+  )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
