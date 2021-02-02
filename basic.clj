@@ -745,12 +745,41 @@
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; @tbotalla
+; Devuelve nil si el parametro recibido es un simbolo invalido,
+; en otro caso devuelve el parametro recibido
+(defn es-invalido? [simbolo]
+  ; (or (number? simbolo) (palabra-reservada? simbolo) (operador? simbolo))
+  ; (println simbolo) ; FIXME: eliminar
+  (case simbolo
+    ! nil
+    ; # nil
+    & nil ; necesario escaparlo
+    ; ' nil
+    ; ` nil
+    ; ´ nil
+    ; @ nil
+    ; [ nil
+    ; ] nil
+    \\ nil
+    _ nil
+    \{ nil
+    \} nil
+    | nil
+    \~ nil
+    simbolo
+  )
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; anular-invalidos: recibe una lista de simbolos y la retorna con
 ; aquellos que son invalidos reemplazados por nil, por ejemplo:
 ; user=> (anular-invalidos '(IF X & * Y < 12 THEN LET ! X = 0))
 ; (IF X nil * Y < 12 THEN LET nil X = 0)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn anular-invalidos [sentencia]
+  (map es-invalido? sentencia) ; Solo borra los caracteres no aceptados
+
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
