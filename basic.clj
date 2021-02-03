@@ -779,7 +779,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn anular-invalidos [sentencia]
   (map es-invalido? sentencia) ; Solo borra los caracteres no aceptados
-
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -795,6 +794,25 @@
 ; [((10 (PRINT X)) (15 (X = X - 1)) (20 (X = 100))) [:ejecucion-inmediata 0] [] [] [] 0 {}]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn cargar-linea [linea amb]
+  ; (println "Linea: ")
+  ; (println linea)
+  ; (println "Num linea:")
+  ; (prn (first linea))
+  ; (println "Ambiente: ")
+  ; (println amb)
+
+  ; Elimina en el ambiente la linea que se esta cargando en caso de que exista, 
+  ; convierte a vector para agregar al final, luego se reconvierte a lista
+  ; y se ordena en base al primer elemento, es decir el numero de linea.
+  ; Finalmente se reemplaza este resultado anterior dentro de la primer posicion
+  ; del ambiente
+  (assoc amb 0 
+    (sort-by first <
+      (apply list 
+        (conj (vec (remove (fn [x] (= (first x) (first linea))) (nth amb 0))) linea)
+      )
+    )
+  )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
