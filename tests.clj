@@ -71,4 +71,40 @@
    (is (= '[((10 (PRINT X)) (15 (X = X - 1)) (20 (X = 100))) [:ejecucion-inmediata 0] [] [] [] 0 {}] (cargar-linea '(15 (X = X - 1)) ['((10 (PRINT X)) (15 (X = X + 1)) (20 (X = 100))) [:ejecucion-inmediata 0] [] [] [] 0 {}])))
 )
 
+(deftest test-dar-error?
+   ; TODO: ver como armar estos tests para hacer un contains de lo que se printea
+   ; (is (= '?SYNTAX ERRORnil (dar-error 16 [:ejecucion-inmediata 4])))
+
+   ; user=> (dar-error 16 [:ejecucion-inmediata 4])
+   ;
+   ; ?SYNTAX ERRORnil
+   ; user=> (dar-error "?ERROR DISK FULL" [:ejecucion-inmediata 4])
+   ;
+   ; ?ERROR DISK FULLnil
+   ; user=> (dar-error 16 [100 3])
+   ;
+   ; ?SYNTAX ERROR IN 100nil
+   ; user=> (dar-error "?ERROR DISK FULL" [100 3])
+   ;
+   ; ?ERROR DISK FULL IN 100nil
+
+   ;   (case cod
+   ;  0 "?NEXT WITHOUT FOR ERROR"
+   ;  6 "FILE NOT FOUND"
+   ;  15 "NOT DIRECT COMMAND"
+   ;  16 "?SYNTAX ERROR"
+   ;  22 "?RETURN WITHOUT GOSUB ERROR"
+   ;  42 "?OUT OF DATA ERROR"
+   ;  53 "?ILLEGAL QUANTITY ERROR"
+   ;  69 "?OVERFLOW ERROR"
+   ;  90 "?UNDEF'D STATEMENT ERROR"
+   ;  100 "?ILLEGAL DIRECT ERROR"
+   ;  133 "?DIVISION BY ZERO ERROR"
+   ;  163 "?TYPE MISMATCH ERROR"
+   ;  176 "?STRING TOO LONG ERROR"
+   ;  200 "?LOAD WITHIN PROGRAM ERROR"
+   ;  201 "?SAVE WITHIN PROGRAM ERROR"
+   ;  cod)
+)
+
 (run-tests)

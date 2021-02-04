@@ -847,6 +847,16 @@
 ; ?ERROR DISK FULL IN 100nil
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn dar-error [cod prog-ptrs]
+  (prn)
+  (if (= (buscar-mensaje cod) cod) 
+    (print cod) 
+    (print (symbol (buscar-mensaje cod)))
+  )
+  ; Verifica si el prog-ptrs es [linea columna],
+  ; en ese caso appendear: " IN linea"
+  (if (not= :ejecucion-inmediata (first prog-ptrs))
+    (print (symbol (apply str [" IN ", (first prog-ptrs)])))
+  )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
