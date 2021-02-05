@@ -870,6 +870,16 @@
 ; false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn variable-float? [x]
+  ; Convierte el identificador a String, obtiene el ultimo elemento
+  ; y lo compara contra % (Integer) y $ (String)
+  (if 
+    (or 
+      (= '\% (last (name x)))
+      (= '\$ (last (name x)))
+    )
+    false
+    true
+  )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

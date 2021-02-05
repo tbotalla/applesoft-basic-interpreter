@@ -107,4 +107,10 @@
    ;  cod)
 )
 
+(deftest test-variable-float?
+   (is (= true (variable-float? 'X)))
+   (is (= false (variable-float? 'X%)))
+   (is (= false (variable-float? 'X$)))
+)
+
 (run-tests)
