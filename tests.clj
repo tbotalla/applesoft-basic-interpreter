@@ -4,8 +4,8 @@
 (load-file "basic.clj")
 
 (deftest test-palabra-reservada?
-   (is (= true (palabra-reservada? 'LOAD)))
-   (is (= true (palabra-reservada? 'SAVE)))
+   ;; (is (= true (palabra-reservada? 'LOAD)))
+   ;; (is (= true (palabra-reservada? 'SAVE)))
    (is (= true (palabra-reservada? 'INPUT)))
    (is (= true (palabra-reservada? 'PRINT)))
    (is (= true (palabra-reservada? '?)))
@@ -28,8 +28,8 @@
    (is (= true (palabra-reservada? 'GOTO)))
    (is (= true (palabra-reservada? 'IF)))
    (is (= true (palabra-reservada? 'ON)))
-   (is (= true (palabra-reservada? 'ENV)))
-   (is (= true (palabra-reservada? 'EXIT)))
+   ;; (is (= true (palabra-reservada? 'ENV)))
+   ;; (is (= true (palabra-reservada? 'EXIT)))
    (is (= true (palabra-reservada? 'ATN)))
    (is (= true (palabra-reservada? 'INT)))
    (is (= true (palabra-reservada? 'SIN)))

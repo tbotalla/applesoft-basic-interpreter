@@ -652,6 +652,89 @@
 ; A PARTIR DE ESTE PUNTO HAY QUE IMPLEMENTAR LAS FUNCIONES DADAS ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; @tbotalla
+;; Conjunto de palabras reservadas
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(def palabras_reservadas 
+  #{
+    "INPUT"
+    "PRINT"
+    "?"
+    "DATA"
+    "READ"
+    "REM"
+    "RESTORE"
+    "CLEAR"
+    "LET"
+    "LIST"
+    "NEW"
+    "RUN"
+    "END"
+    "FOR"
+    "TO"
+    "NEXT"
+    "STEP"
+    "GOSUB"
+    "RETURN"
+    "GOTO"
+    "IF"
+    "THEN"
+    "ON"
+    ;; "ENV" Son del interprete
+    ;; "EXIT" Son del interprete
+    "ATN"
+    "INT"
+    "SIN"
+    "LEN"
+    "MID$"
+    "ASC"
+    "CHR$"
+    "STR$"
+  }
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; @tbotalla
+;; Conjunto de operadores
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(def operadores 
+  #{
+    "+"
+    "-"
+    "*"
+    "/"
+    "^"
+    "="
+    "<>"
+    "<"
+    "<="
+    ">"
+    ">="
+    "AND"
+    "OR"
+  }
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; @tbotalla
+;; Simbolos invalidos
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; #"\!|\"|\#|\&|\'|\:|\{|\}|\[|\]|\_|\|\~|\%|\$"]
+(def simbolos_invalidos 
+  #{
+    "!"
+    "&"
+    "\\"
+    "_"
+    "{"
+    "}"
+    "|"
+    "~"
+  }
+)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; palabra-reservada?: predicado para determinar si un
 ; identificador es una palabra reservada, por ejemplo:
@@ -661,57 +744,59 @@
 ; false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn palabra-reservada? [x]
-  (case x
-    LOAD true
-    SAVE true
-    INPUT true
-    PRINT true
-    ? true
-    DATA true
-    READ true
-    REM true
-    RESTORE true
-    CLEAR true
-    LET true
-    LIST true
-    NEW true
-    RUN true
-    END true
-    FOR true
-    TO true
-    NEXT true
-    STEP true
-    GOSUB true
-    RETURN true
-    GOTO true
-    IF true
-    ON true
-    ENV true
-    EXIT true
-    ATN true
-    INT true
-    SIN true
-    LEN true
-    MID$ true
-    ASC true
-    CHR$ true
-    STR$ true
-    + true
-    - true
-    * true
-    / true
-    ; ^ true
-    = true
-    <> true
-    < true
-    <= true
-    > true
-    >= true
-    AND true
-    OR true
-    false
-  )
-  ; (= x 'REM) ; FIXME prueba para el test
+  (contains? palabras_reservadas (clojure.string/upper-case x))
+
+  ;; (case x
+  ;;   ;; LOAD true ; Son de Apple DOS 3.3
+  ;;   ;; SAVE true ; Son de Apple DOS 3.3
+  ;;   INPUT true ;
+  ;;   PRINT true ;
+  ;;   ? true ;
+  ;;   DATA true
+  ;;   READ true ;
+  ;;   REM true ;
+  ;;   RESTORE true ;
+  ;;   CLEAR true ;
+  ;;   LET true ;
+  ;;   LIST true ;
+  ;;   NEW true ;
+  ;;   RUN true ;
+  ;;   END true ;
+  ;;   FOR true ;
+  ;;   TO true ;
+  ;;   NEXT true ;
+  ;;   STEP true ;
+  ;;   GOSUB true ;
+  ;;   RETURN true ;
+  ;;   GOTO true ;
+  ;;   IF true ;
+  ;;   THEN true ;
+  ;;   ON true ;
+  ;;   ;; ENV true ; Son del interprete
+  ;;   ;; EXIT true ; Son del interprete
+  ;;   ATN true
+  ;;   INT true
+  ;;   SIN true
+  ;;   LEN true
+  ;;   MID$ true
+  ;;   ASC true
+  ;;   CHR$ true
+  ;;   STR$ true
+  ;;   ;; + true
+  ;;   ;; - true
+  ;;   ;; * true
+  ;;   ;; / true
+  ;;   ;; ; ^ true
+  ;;   ;; = true
+  ;;   ;; <> true
+  ;;   ;; < true
+  ;;   ;; <= true
+  ;;   ;; > true
+  ;;   ;; >= true
+  ;;   ;; AND true
+  ;;   ;; OR true
+  ;;   false
+  ;; )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -725,52 +810,72 @@
 ; false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn operador? [x]
-  ; (or (= x '+) (= x (symbol "+"))) ; FIXME prueba para el test
-  (case x
-    + true
-    - true
-    * true
-    / true
-    \^ true ; necesario escaparlo
-    = true
-    <> true
-    < true
-    <= true
-    > true
-    >= true
-    AND true
-    OR true
-    false
-  )
+  (contains? operadores (clojure.string/upper-case x))
+
+  ;; (case x
+  ;;   + true
+  ;;   - true
+  ;;   * true
+  ;;   / true
+  ;;   \^ true ; necesario escaparlo
+  ;;   = true
+  ;;   <> true
+  ;;   < true
+  ;;   <= true
+  ;;   > true
+  ;;   >= true
+  ;;   AND true
+  ;;   OR true
+  ;;   false
+  ;; )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; @tbotalla
 ; Devuelve nil si el parametro recibido es un simbolo invalido,
 ; en otro caso devuelve el parametro recibido
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn es-invalido? [simbolo]
-  ; (or (number? simbolo) (palabra-reservada? simbolo) (operador? simbolo))
-  ; (println simbolo) ; FIXME: eliminar
-  (case simbolo
-    ! nil
-    ; # nil
-    & nil ; necesario escaparlo
-    ; ' nil
-    ; ` nil
-    ; ´ nil
-    ; @ nil
-    ; [ nil
-    ; ] nil
-    \\ nil
-    _ nil
-    \{ nil
-    \} nil
-    | nil
-    \~ nil
-    ; TODO: tildes?
+  ;; (case simbolo
+  ;;   ! nil
+  ;;   ; # nil
+  ;;   & nil ; necesario escaparlo
+  ;;   ; ' nil
+  ;;   ; ` nil
+  ;;   ; ´ nil
+  ;;   ; @ nil
+  ;;   ; [ nil
+  ;;   ; ] nil
+  ;;   \\ nil
+  ;;   _ nil
+  ;;   \{ nil
+  ;;   \} nil
+  ;;   | nil
+  ;;   \~ nil
+  ;;   ; TODO: tildes?
+  ;;   simbolo
+  ;; )
+
+  (if 
+    (contains? simbolos_invalidos (clojure.string/upper-case simbolo))
+    nil
     simbolo
   )
 )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; @tbotalla
+; Devuelve true si el simbolo es una variable
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn es-variable? [simbolo]
+  (or 
+    (variable-float? simbolo)  
+    (variable-integer? simbolo)
+    (variable-string? simbolo)
+    false
+  )
+)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; anular-invalidos: recibe una lista de simbolos y la retorna con
