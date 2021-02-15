@@ -133,4 +133,12 @@
    (is (= 9 (precedencia 'MID$)))
 )
 
+(deftest aridad?
+   (is (= 0 (aridad 'THEN)))
+   (is (= 1 (aridad 'SIN)))
+   (is (= 2 (aridad '*)))
+   (is (= 2 (aridad 'MID$)))
+   (is (= 3 (aridad 'MID3$)))
+)
+
 (run-tests)

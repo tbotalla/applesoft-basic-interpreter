@@ -1270,7 +1270,49 @@
 ; user=> (aridad 'MID3$)
 ; 3
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(def funciones_aridad_3
+  #{
+    "MID3$"
+  }
+)
+
+(def funciones_aridad_2
+  #{
+    "*"
+    "/"
+    "+"
+    "-"
+    "^"
+    "OR"
+    "AND"
+    "="
+    "<"
+    "<="
+    ">"
+    ">="
+    "MID$"
+  }
+)
+
+(def funciones_aridad_1
+  #{
+    "ATN"
+    "INT"
+    "SIN"
+    "LEN"
+    "ASC"
+    "CHR$"
+    "STR$"
+  }
+)
+
 (defn aridad [token]
+  (cond
+    (contains? funciones_aridad_3 (str token)) 3
+    (contains? funciones_aridad_2 (str token)) 2
+    (contains? funciones_aridad_1 (str token)) 1
+    :else 0
+  )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
