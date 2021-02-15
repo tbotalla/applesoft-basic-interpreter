@@ -1227,6 +1227,33 @@
 ; 9
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn precedencia [token]
+  (cond
+    (= token (symbol ",")) 0
+    (= token (symbol "OR")) 1
+    (= token (symbol "AND")) 2
+    (= token (symbol "<>")) 3
+    (= token (symbol "=")) 3
+    (= token (symbol "<")) 4
+    (= token (symbol "<=")) 4
+    (= token (symbol ">")) 4
+    (= token (symbol ">=")) 4
+    (= token (symbol "+")) 5
+    (= token (symbol "-")) 5
+    (= token (symbol "/")) 6
+    (= token (symbol "*")) 6
+    (= token (symbol "-u")) 7
+    (= token (symbol "^")) 8
+    (= token (symbol "LEN")) 9
+    (= token (symbol "INT")) 9
+    (= token (symbol "ATN")) 9
+    (= token (symbol "SIN")) 9
+    (= token (symbol "ASC")) 9
+    (= token (symbol "CHR$")) 9
+    (= token (symbol "STR$")) 9
+    (= token (symbol "MID$")) 9
+    (= token (symbol "MID3$")) 9
+    :else 10
+  )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -125,5 +125,12 @@
    (is (= false (variable-string? 'X%)))
 )
 
+(deftest precedencia?
+   (is (= 1 (precedencia 'OR)))
+   (is (= 2 (precedencia 'AND)))
+   (is (= 6 (precedencia '*)))
+   (is (= 7 (precedencia '-u)))
+   (is (= 9 (precedencia 'MID$)))
+)
 
 (run-tests)
