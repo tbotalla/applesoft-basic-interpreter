@@ -661,7 +661,7 @@
   #{
     "INPUT"
     "PRINT"
-    "?"
+    ;; "?" ; TODO: verificar
     "DATA"
     "READ"
     "REM"
@@ -967,6 +967,62 @@
   )
 )
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; @tbotalla
+;; primer-caracter-alfabetico?: dado un simbolo lo convierte a string
+;; pasado a mayusculas, se queda con el primer caracter
+;; y retorna true si ese caracter es alfabetico 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn primer-caracter-alfabetico? [x]
+  (some? 
+    (re-find #"[A-Z]" 
+      (str 
+        (first (clojure.string/upper-case x)) 
+      )
+    )  
+  )
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; @tbotalla
+;; longitud-variable-valida?: los nombres de variables deben tener
+;; una longitud menor o igual a 238
+;; https://www.applefritter.com/files/Applesoft%20II%202019.pdf
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn longitud-variable-valida? [x]
+  (<= (count x) 238)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; @tbotalla
+;; nombre-variable-no-contiene-palabra-reservada?: verifica si el 
+;; simbolo recibido como parametro contiene alguna palabra reservada
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn nombre-variable-no-contiene-palabra-reservada? [x]
+  (if 
+    (some #(boolean (re-find (re-pattern %) x)) palabras_reservadas)
+    false
+    true
+  )
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; @tbotalla
+;; nombre-variable-valido?: devuelve true si x puede ser un nombre
+;; valido de variable. Debe empezar con caracter alfabetico,
+;; puede contener caracteres alfanumericos, longitud menor a 238 
+;; caracteres, no contener palabras reservadas
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn nombre-variable-valido? [x]
+  ;; TODO: no llamar a upper-case todo el tiempo
+  (and
+    (primer-caracter-alfabetico? (clojure.string/upper-case x))
+    (longitud-variable-valida? (clojure.string/upper-case x))
+    (nombre-variable-no-contiene-palabra-reservada? (clojure.string/upper-case x))
+  )
+)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; variable-float?: predicado para determinar si un identificador
 ; es una variable de punto flotante, por ejemplo:
@@ -979,14 +1035,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn variable-float? [x]
   ; Convierte el identificador a String, obtiene el ultimo elemento
-  ; y lo compara contra % (Integer) y $ (String)
+  ; y lo compara contra % (Integer) y $ (String).
+  ; Adicionalmente verifica que el nombre de la variable sea valido
   (if 
-    (or 
-      (= '\% (last (name x)))
-      (= '\$ (last (name x)))
+    (and 
+      (nombre-variable-valido? x)
+      (not (= '\% (last (name x))))
+      (not (= '\$ (last (name x))))
     )
-    false
     true
+    false
   )
 )
 
@@ -1002,7 +1060,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn variable-integer? [x]
   (if 
-    (= '\% (last (name x)))
+    (and 
+      (nombre-variable-valido? x)
+      (= '\% (last (name x)))
+    )
     true
     false
   )
@@ -1020,7 +1081,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn variable-string? [x]
   (if 
-    (= '\$ (last (name x)))
+    (and 
+      (nombre-variable-valido? x)
+      (= '\$ (last (name x)))
+    )
     true
     false
   )

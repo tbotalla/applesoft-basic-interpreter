@@ -8,7 +8,7 @@
    ;; (is (= true (palabra-reservada? 'SAVE)))
    (is (= true (palabra-reservada? 'INPUT)))
    (is (= true (palabra-reservada? 'PRINT)))
-   (is (= true (palabra-reservada? '?)))
+   ;; (is (= true (palabra-reservada? '?)))
    (is (= true (palabra-reservada? 'DATA)))
    (is (= true (palabra-reservada? 'READ)))
    (is (= true (palabra-reservada? 'REM)))
