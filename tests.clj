@@ -71,6 +71,20 @@
    (is (= '[((10 (PRINT X)) (15 (X = X - 1)) (20 (X = 100))) [:ejecucion-inmediata 0] [] [] [] 0 {}] (cargar-linea '(15 (X = X - 1)) ['((10 (PRINT X)) (15 (X = X + 1)) (20 (X = 100))) [:ejecucion-inmediata 0] [] [] [] 0 {}])))
 )
 
+; user=> (def n (list '(PRINT 1) (list 'NEXT 'A (symbol ",") 'B)))
+; #'user/n
+; user=> n
+; ((PRINT 1) (NEXT A , B))
+; user=> (expandir-nexts n)
+; ((PRINT 1) (NEXT A) (NEXT B))
+(deftest expandir-nexts?
+   (def n (list '(PRINT 1) (list 'NEXT 'A (symbol ",") 'B)))
+   (is (= '((PRINT 1) (NEXT A) (NEXT B)) (expandir-nexts n)))
+
+   (is (= '((PRINT 1) (NEXT A) (NEXT B) (NEXT C) (PRINT 10) (NEXT D) (NEXT E)) (expandir-nexts '((PRINT 1) (NEXT A , B , C) (PRINT 10) (NEXT D,E)))))
+)
+
+
 (deftest test-dar-error?
    ; TODO: ver como armar estos tests para hacer un contains de lo que se printea
    ; (is (= '?SYNTAX ERRORnil (dar-error 16 [:ejecucion-inmediata 4])))

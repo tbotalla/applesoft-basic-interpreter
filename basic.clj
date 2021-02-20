@@ -33,7 +33,7 @@
 (declare operador?)                       ; IMPLEMENTAR x
 (declare anular-invalidos)                ; IMPLEMENTAR x
 (declare cargar-linea)                    ; IMPLEMENTAR xx
-(declare expandir-nexts)                  ; IMPLEMENTAR
+(declare expandir-nexts)                  ; IMPLEMENTAR x
 (declare dar-error)                       ; IMPLEMENTAR x
 (declare variable-float?)                 ; IMPLEMENTAR x
 (declare variable-integer?)               ; IMPLEMENTAR x
@@ -48,7 +48,7 @@
 (declare precedencia)                     ; IMPLEMENTAR x
 (declare aridad)                          ; IMPLEMENTAR x
 (declare eliminar-cero-decimal)           ; IMPLEMENTAR x
-(declare eliminar-cero-entero)            ; IMPLEMENTAR
+(declare eliminar-cero-entero)            ; IMPLEMENTAR x
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; driver-loop: el REPL del interprete de Applesoft BASIC
@@ -940,8 +940,45 @@
 ; user=> (expandir-nexts n)
 ; ((PRINT 1) (NEXT A) (NEXT B))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn expandir-nexts [n]
+(defn comienza-con-next? [s]
+  (= "NEXT" (clojure.string/upper-case (clojure.string/trim (str (first s)))))
+)
 
+; Recibe algo de la forma: (NEXT A , B , C)
+; y devuelve ((NEXT A) (NEXT B) (NEXT C))
+(defn expandir-next [s]
+  (prn s)
+  (if (comienza-con-next? s)
+      ; Por cada elemento despues del NEXT (elimina las comas), genera una
+      ; lista como (NEXT <elemento>)
+      (map #(list 'NEXT %) (remove #(= (symbol ",") %) (drop-while #(= 'NEXT %) s) ))
+      s
+  )
+)
+
+(defn expandir-elementos [n, l]
+  (if (= 0 (count n)) ; Condicion de corte
+    l
+    ; Llamado recursivo. Va tomando de a un elemento de la lista n
+    ; y lo va 'removiendo' y concatenando a la lista l.
+    ; Para esta ultima concatenacion, si es un NEXT se lo expande,
+    ; sino se lo concatena tal cual viene
+    (expandir-elementos 
+      (rest n)
+      (if (comienza-con-next? (first n)) 
+        ; Concatena lo que tenia previamente en l con el resultado invertido de (expandir-next)
+        (apply (partial conj l) (expandir-next (first n)))
+        (conj l (first n)) ; Si no es un next lo concateno al final
+      )
+    )
+  )
+)
+
+
+(defn expandir-nexts [n]
+  ; Tener en cuenta que se aplica a todas las sentencias, por lo tanto
+  ; primero verificar si tiene un NEXT antes de expandirla
+  (reverse (expandir-elementos n '()))
 
 )
 
