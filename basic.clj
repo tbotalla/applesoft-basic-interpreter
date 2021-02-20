@@ -940,12 +940,19 @@
 ; user=> (expandir-nexts n)
 ; ((PRINT 1) (NEXT A) (NEXT B))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; @tbotalla
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn comienza-con-next? [s]
   (= "NEXT" (clojure.string/upper-case (clojure.string/trim (str (first s)))))
 )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; @tbotalla
 ; Recibe algo de la forma: (NEXT A , B , C)
 ; y devuelve ((NEXT A) (NEXT B) (NEXT C))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn expandir-next [s]
   (prn s)
   (if (comienza-con-next? s)
@@ -956,6 +963,9 @@
   )
 )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; @tbotalla
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn expandir-elementos [n, l]
   (if (= 0 (count n)) ; Condicion de corte
     l
@@ -973,7 +983,6 @@
     )
   )
 )
-
 
 (defn expandir-nexts [n]
   ; Tener en cuenta que se aplica a todas las sentencias, por lo tanto
@@ -1147,6 +1156,14 @@
 ; 2
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn contar-sentencias [nro-linea amb]
+  (count 
+    (expandir-nexts
+      (remove #(= nro-linea %) 
+        (first 
+          (filter #(= nro-linea (first %)) 
+            (first amb))))
+    )
+  )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
