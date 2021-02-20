@@ -141,4 +141,22 @@
    (is (= 3 (aridad 'MID3$)))
 )
 
+
+; user=> (eliminar-cero-decimal 1.5)
+; 1.5
+; user=> (eliminar-cero-decimal 1.50)
+; 1.5
+; user=> (eliminar-cero-decimal 1.0)
+; 1
+; user=> (eliminar-cero-decimal 'A)
+; A
+(deftest eliminar-cero-decimal?
+   (is (= 1.5 (eliminar-cero-decimal 1.5)))
+   (is (= 1.5 (eliminar-cero-decimal 1.50)))
+   (is (= 1 (eliminar-cero-decimal 1.0)))
+   (is (= 'A (eliminar-cero-decimal 'A)))
+
+   (is (= 0.5 (eliminar-cero-decimal 0.500)))
+)
+
 (run-tests)

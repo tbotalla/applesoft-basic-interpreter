@@ -29,15 +29,15 @@
 (declare evaluar)                         ; COMPLETAR
 (declare aplicar)                         ; COMPLETAR
 
-(declare palabra-reservada?)              ; IMPLEMENTAR
-(declare operador?)                       ; IMPLEMENTAR
-(declare anular-invalidos)                ; IMPLEMENTAR
-(declare cargar-linea)                    ; IMPLEMENTAR
+(declare palabra-reservada?)              ; IMPLEMENTAR x
+(declare operador?)                       ; IMPLEMENTAR x
+(declare anular-invalidos)                ; IMPLEMENTAR x
+(declare cargar-linea)                    ; IMPLEMENTAR xx
 (declare expandir-nexts)                  ; IMPLEMENTAR
-(declare dar-error)                       ; IMPLEMENTAR
-(declare variable-float?)                 ; IMPLEMENTAR
-(declare variable-integer?)               ; IMPLEMENTAR
-(declare variable-string?)                ; IMPLEMENTAR
+(declare dar-error)                       ; IMPLEMENTAR x
+(declare variable-float?)                 ; IMPLEMENTAR x
+(declare variable-integer?)               ; IMPLEMENTAR x
+(declare variable-string?)                ; IMPLEMENTAR x
 (declare contar-sentencias)               ; IMPLEMENTAR
 (declare buscar-lineas-restantes)         ; IMPLEMENTAR
 (declare continuar-linea)                 ; IMPLEMENTAR
@@ -45,9 +45,9 @@
 (declare ejecutar-asignacion)             ; IMPLEMENTAR
 (declare preprocesar-expresion)           ; IMPLEMENTAR
 (declare desambiguar)                     ; IMPLEMENTAR
-(declare precedencia)                     ; IMPLEMENTAR
-(declare aridad)                          ; IMPLEMENTAR
-(declare eliminar-cero-decimal)           ; IMPLEMENTAR
+(declare precedencia)                     ; IMPLEMENTAR x
+(declare aridad)                          ; IMPLEMENTAR x
+(declare eliminar-cero-decimal)           ; IMPLEMENTAR x
 (declare eliminar-cero-entero)            ; IMPLEMENTAR
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -123,12 +123,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn evaluar-linea
   ([sentencias amb]
+    (prn (pr-str "evaluar-linea diadico: sentencias=" sentencias " amb=" amb)) ; 
     (let [sentencias-con-nexts-expandidos (expandir-nexts sentencias)]
          (evaluar-linea sentencias-con-nexts-expandidos sentencias-con-nexts-expandidos amb)))
   ([linea sentencias amb]
+    (prn (pr-str "evaluar-linea triadico: sentencias=" sentencias " amb=" amb " linea=" linea)) ; @TBOTALLA BORRAR
     (if (empty? sentencias)
         [:sin-errores amb]
         (let [sentencia (anular-invalidos (first sentencias)), par-resul (evaluar sentencia amb)]
+             (prn (pr-str "evaluar-linea triadico: sentencia=" sentencia " par-resul=" par-resul)) ; @tbotalla borrar
              (if (or (nil? (first par-resul)) (contains? #{:omitir-restante, :error-parcial, :for-inconcluso} (first par-resul)))
                  (if (and (= (first (amb 1)) :ejecucion-inmediata) (= (first par-resul) :for-inconcluso))
                      (recur linea (take-last (second (second (second par-resul))) linea) (second par-resul))
@@ -357,6 +360,7 @@
 ; 7
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn calcular-expresion [expr amb]
+  (prn (pr-str "calcular-expresion: expr=" expr " amb=" amb)) ;@tbotalla
   (calcular-rpn (shunting-yard (desambiguar (preprocesar-expresion expr amb))) (amb 1))
 )
 
@@ -469,6 +473,7 @@
 (defn imprimir
   ([v]
      (let [expresiones (v 0), amb (v 1)]
+          (prn (pr-str "imprimir monadico: expresiones=" expresiones " amb=" amb)) ;@tbotalla
           (cond
             (empty? expresiones) (do (prn) (flush) :sin-errores)
             (and (empty? (next expresiones)) (= (first expresiones) (list (symbol ";")))) (do (pr) (flush) :sin-errores)
@@ -476,10 +481,13 @@
             (= (first expresiones) (list (symbol ";"))) (do (pr) (flush) (recur [(next expresiones) amb]))
             (= (first expresiones) (list (symbol ",t"))) (do (printf "\t\t") (flush) (recur [(next expresiones) amb]))
             :else (let [resu (eliminar-cero-entero (calcular-expresion (first expresiones) amb))]
+                        (prn (pr-str "imprimir monadico: resultado calcular-expresion=" (calcular-expresion (first expresiones) amb))) ;@tbotalla
+                        (prn (pr-str "imprimir monadico: resu=" resu)) ;@tbotalla
                         (if (nil? resu)
                             resu
                             (do (print resu) (flush) (recur [(next expresiones) amb])))))))
   ([lista-expr amb]
+    (prn (pr-str "imprimir diadico: lista-expr=" lista-expr " amb=" amb)) ;@tbotalla
     (let [nueva (cons (conj [] (first lista-expr)) (rest lista-expr)),
           variable? #(or (variable-integer? %) (variable-float? %) (variable-string? %)),
           funcion? #(and (> (aridad %) 0) (not (operador? %))),		  
@@ -488,6 +496,7 @@
                          (conj (conj %1 (symbol ";")) %2) (conj %1 %2)) nueva),
           ex (partition-by #(= % (symbol ",t")) (desambiguar-comas interc)),
           expresiones (apply concat (map #(partition-by (fn [x] (= x (symbol ";"))) %) ex))]
+          (prn (pr-str "imprimir diadico: nueva=" nueva " variable?=" variable? " funcion?=" funcion? " interc=" interc " ex=" ex " expresiones=" expresiones)) ;@tbotalla
          (imprimir [expresiones amb])))
 )
 
@@ -900,8 +909,7 @@
 ; [((10 (PRINT X)) (15 (X = X - 1)) (20 (X = 100))) [:ejecucion-inmediata 0] [] [] [] 0 {}]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn cargar-linea [linea amb]
-  ; (println "Linea: ")
-  ; (println linea)
+  (prn (pr-str "carga-linea: linea=" linea " amb=" amb))
   ; (println "Num linea:")
   ; (prn (first linea))
   ; (println "Ambiente: ")
@@ -1327,8 +1335,33 @@
 ; user=> (eliminar-cero-decimal 'A)
 ; A
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn eliminar-cero-decimal [n]
+(defn es-entero? [n]
+  (== (int n) n)
 )
+
+; Al convertirlo a string ya elimina los ceros del final para el caso
+; de 1.50 por ejemplo. Por las dudas tambien va esto:
+(defn eliminar-ceros-al-final [n]
+  (Double/parseDouble 
+    (apply str 
+      (reverse 
+        (drop-while #(= \0 %) (reverse (str n)))
+      )
+    )
+  )
+)
+
+(defn eliminar-cero-decimal [n]
+  (cond
+    (number? n)
+      (if (es-entero? n)
+        (int n)
+        (eliminar-ceros-al-final n)
+      )
+    :else n
+  )
+)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; eliminar-cero-entero: recibe un simbolo y lo retorna convertido
