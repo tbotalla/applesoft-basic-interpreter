@@ -1386,7 +1386,22 @@
 ; user=> (eliminar-cero-entero -0.5)
 ; "-.5"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn eliminar-cero-inicial-en-decimal [x]
+  ; Si es negativo hace un reverse, elimina el primer elemento (-), lo vuelve a 
+  ; revertir, y elimina los ceros del principio. Finalmente rearma el string
+  ; volviendo a concatenar el simbolo -
+  (if (neg? x) (reduce str \- (drop-while #(= \0 %) (reverse (drop-last (reverse (str x))))))
+    (reduce str (drop-while #(= \0 %) (str x)))
+  )
+)
+
 (defn eliminar-cero-entero [n]
+  (cond
+    (nil? n) nil
+    (symbol? n) (str n)
+    (es-entero? n) (str n)
+    :else (eliminar-cero-inicial-en-decimal n)
+  )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

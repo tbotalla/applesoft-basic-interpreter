@@ -159,4 +159,34 @@
    (is (= 0.5 (eliminar-cero-decimal 0.500)))
 )
 
+; user=> (eliminar-cero-entero nil)
+; nil
+; user=> (eliminar-cero-entero 'A)
+; "A"
+; user=> (eliminar-cero-entero 0)
+; "0"
+; user=> (eliminar-cero-entero 1.5)
+; "1.5"
+; user=> (eliminar-cero-entero 1)
+; "1"
+; user=> (eliminar-cero-entero -1)
+; "-1"
+; user=> (eliminar-cero-entero -1.5)
+; "-1.5"
+; user=> (eliminar-cero-entero 0.5)
+; ".5"
+; user=> (eliminar-cero-entero -0.5)
+; "-.5"
+(deftest eliminar-cero-entero?
+   (is (= nil (eliminar-cero-entero nil)))
+   (is (= "A" (eliminar-cero-entero 'A)))
+   (is (= "0" (eliminar-cero-entero 0)))
+   (is (= "1.5" (eliminar-cero-entero 1.5)))
+   (is (= "1" (eliminar-cero-entero 1)))
+   (is (= "-1" (eliminar-cero-entero -1)))
+   (is (= "-1.5" (eliminar-cero-entero -1.5)))
+   (is (= ".5" (eliminar-cero-entero 0.5)))
+   (is (= "-.5" (eliminar-cero-entero -0.5)))
+)
+
 (run-tests)
