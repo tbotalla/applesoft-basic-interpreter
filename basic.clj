@@ -38,8 +38,8 @@
 (declare variable-float?)                 ; IMPLEMENTAR x
 (declare variable-integer?)               ; IMPLEMENTAR x
 (declare variable-string?)                ; IMPLEMENTAR x
-(declare contar-sentencias)               ; IMPLEMENTAR
-(declare buscar-lineas-restantes)         ; IMPLEMENTAR
+(declare contar-sentencias)               ; IMPLEMENTAR x
+(declare buscar-lineas-restantes)         ; IMPLEMENTAR x
 (declare continuar-linea)                 ; IMPLEMENTAR
 (declare extraer-data)                    ; IMPLEMENTAR
 (declare ejecutar-asignacion)             ; IMPLEMENTAR
@@ -1201,8 +1201,44 @@
 (defn buscar-lineas-restantes
   ([amb] (buscar-lineas-restantes (amb 1) (amb 0)))
   ([act prg]
+    (prn (str "buscar-lineas-restantes: act=" act " prg=" prg))
+    (let [
+      nro-linea (first act) , 
+      sentencias-restantes (second act) , ; Sentencias restantes de la linea actual: <nro-linea>
+    ]
+      (prn (pr-str "buscar-lineas-restantes: nro-linea=" nro-linea " sentencias-restantes=" sentencias-restantes))
+      (if 
+        (or 
+          (= 0 (count (filter #(= nro-linea (first %)) prg)))
+          (= :ejecucion-inmediata nro-linea)
+        )
+          nil ; Si no encuentra la linea o es ejecucion inmediata devuelve nil
+          (let [
+            linea-actual (first (filter #(= nro-linea (first %)) prg)) ,
+            lineas-siguientes (filter #(< nro-linea (first %)) prg) ; Lineas siguientes a la linea actual: <nro-linea>
+          ]
+            (prn (pr-str "buscar-lineas-restantes: linea-actual=" linea-actual " lineas-siguientes=" lineas-siguientes))
+            
+            (concat 
+              ; Sentencias de la linea actual. En estas si se expanden los NEXT, en las demas no.
+              (list 
+                (cons nro-linea 
+                  (take-last sentencias-restantes
+                    (expandir-nexts
+                      (drop-while number? linea-actual)
+                    )
+                  )
+                )
+              )
+              ; Sentencias de las lineas siguientes
+              lineas-siguientes
+            )          
+          )
+      )
     )
+  )
 )
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; continuar-linea: implementa la sentencia RETURN, retornando una
