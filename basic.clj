@@ -1251,7 +1251,20 @@
 ; user=> (continuar-linea [(list '(10 (PRINT X)) '(15 (GOSUB 100) (X = X + 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))) [20 3] [[15 2]] [] [] 0 {}])
 ; [:omitir-restante [((10 (PRINT X)) (15 (GOSUB 100) (X = X + 1)) (20 (NEXT I , J))) [15 1] [] [] [] 0 {}]]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn nuevo-puntero-programa[amb]
+  [(first (peek (nth amb 2))) (- (second (peek (nth amb 2))) 1)] ; Se usa peek para leer tipo LIFO porque es un stack
+)
+
 (defn continuar-linea [amb]
+  ; [(prog-mem)  [prog-ptrs]  [gosub-return-stack]  [for-next-stack]  [data-mem]  data-ptr  {var-mem}]
+  (if
+    (empty? (nth amb 2)) ; gosub-return-stack
+    (do (dar-error 22 (nth amb 1)) (vector nil amb))
+      ; Actualiza el prog-ptrs (nth amb 1) con el valor del primer elemento de la pila gosub-return-stack decrementandole
+      ; en uno el contador de sentencias restantes en sa linea
+      ; Se usa pop para sacar el elemento de la pila de [gosub-return-stack] pues es LIFO
+      [:omitir-restante [(nth amb 0) (nuevo-puntero-programa amb) (pop (nth amb 2)) (nth amb 3) (nth amb 4) (nth amb 5) (nth amb 6)]]
+  )  
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
