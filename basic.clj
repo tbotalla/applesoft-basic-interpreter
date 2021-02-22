@@ -1276,7 +1276,84 @@
 ; user=> (extraer-data (list '(10 (PRINT X) (REM ESTE NO) (DATA 30)) '(20 (DATA HOLA)) (list 100 (list 'DATA 'MUNDO (symbol ",") 10 (symbol ",") 20))))
 ; ("HOLA" "MUNDO" 10 20)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Funcionamiento del DATA: http://www.hoist-point.com/applesoft_basic_tutorial.htm#data_command_section
+(defn no-empieza-con-rem? [x]
+  ;; (prn (str "empieza-con-rem? : sentencia=" x))
+  (if 
+    (or 
+      (nil? x)
+      (= 'REM (first x))
+    )
+    false
+    true
+  )
+)
+
+; Dada una lista correspondiente a una linea con sentencias, ignora las
+; sentencias posteriores a una que empieze con 'REM
+; Recibe algo de la forma: (10 (PRINT X) (REM ESTE NO) (DATA 30))
+(defn filtrar-sentencias-post-rem [linea]
+  ;; (prn (str "filtrar-sentencias-post-rem: linea=" linea " first linea=" (first linea)))
+  (let 
+    [nro-linea (first linea)]
+    (cons nro-linea ; Recupera el nro de linea
+      ; Elimina el nro de linea y se queda con los elementos hasta que el primero de alguno empieze con 'REM
+      (take-while no-empieza-con-rem? (drop-while number? linea)) 
+    )
+  )
+)
+
+; Recibe algo de la forma (DATA MUNDO , 10 , 20)
+(defn limpiar-datas [linea]
+  ;; (prn (str "limpiar-datas: linea=" linea))
+  (if 
+    (not= 'DATA
+      (first linea)
+    )
+    nil
+    (pop linea) ; Elimina el DATA
+  )
+)
+
+; Recibe algo de la forma: (100 (DATA MUNDO , 10 , 20))
+; Devuelve (MUNDO 10 20)
+; Tener en cuenta que pueden ser varias sentencias!
+(defn procesar-data [linea]
+  ;; (prn (str "procesar-data: linea=" linea))
+  (let 
+    [
+      sentencias (rest linea)
+    ]
+    (map limpiar-datas sentencias)
+  )
+
+)
+
+(defn convertir-a-string-si-no-es-numero [n]
+  (if 
+    (number? n)
+    n
+    (str n)
+  )
+)
+
 (defn extraer-data [prg]
+  (if 
+    (= 0 (count (first prg)))
+    '()
+    (map convertir-a-string-si-no-es-numero
+      (filter #(and (not (nil? %)) (not (= "," (clojure.string/trim (str %))))) ; Elimina los nil o ,
+        (flatten
+          (map procesar-data
+            (->> prg
+              (map filtrar-sentencias-post-rem)
+            )
+          )
+        )
+      )    
+    )
+  )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
