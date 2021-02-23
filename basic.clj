@@ -1276,7 +1276,6 @@
 ; user=> (extraer-data (list '(10 (PRINT X) (REM ESTE NO) (DATA 30)) '(20 (DATA HOLA)) (list 100 (list 'DATA 'MUNDO (symbol ",") 10 (symbol ",") 20))))
 ; ("HOLA" "MUNDO" 10 20)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ; Funcionamiento del DATA: http://www.hoist-point.com/applesoft_basic_tutorial.htm#data_command_section
 (defn no-empieza-con-rem? [x]
   ;; (prn (str "empieza-con-rem? : sentencia=" x))
@@ -1369,7 +1368,23 @@
 ; user=> (ejecutar-asignacion '(X$ = X$ + " MUNDO") ['((10 (PRINT X))) [10 1] [] [] [] 0 '{X$ "HOLA"}])
 ; [((10 (PRINT X))) [10 1] [] [] [] 0 {X$ "HOLA MUNDO"}]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn es-asignacion? [sentencia]
+
+)
+
+(defn es-asignacion? [sentencia]
+
+)
+
 (defn ejecutar-asignacion [sentencia amb]
+  (let
+    [
+      vars-ambiente (amb 6)
+    ]
+    (
+
+    )
+  )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1381,7 +1396,52 @@
 ; user=> (preprocesar-expresion '(X + . / Y% * Z) ['((10 (PRINT X))) [10 1] [] [] [] 0 '{X 5 Y% 2}])
 ; (5 + 0 / 2 * 0)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn valor-por-defecto-de-variable-segun-tipo [var]
+  (cond
+    (variable-float? var) 0
+    (variable-integer? var) 0
+    (variable-string? var) ""
+    :else ""
+  )
+)
+
+(defn buscar-valor-variable [vars-ambiente var]
+  (let
+    [
+      ; Busca el valor en el mapa de variables del ambiente, 
+      ; y si no lo encuentra devuelve un valor por defecto
+      valor-encontrado (get vars-ambiente var "no-encontrada")
+    ]
+    (if
+      (= 
+        "no-encontrada"
+        valor-encontrado
+      )
+      ; Si no lo encontro devuelve el valor por defecto segun el tipo de variable
+      (valor-por-defecto-de-variable var)
+      valor-encontrado
+    )
+  )
+)
+
+(defn procesar-elemento-expresion [amb x]
+  (let
+    [
+      resultado (if
+                  (nombre-variable-valido? x)
+                  (buscar-valor-variable (amb 6) x)
+                  x
+                )
+    ]
+    (if (= '. resultado)
+      0
+      resultado
+    )
+  )
+)
+
 (defn preprocesar-expresion [expr amb]
+  (map #(procesar-elemento-expresion amb %) expr)
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1397,7 +1457,13 @@
 ; user=> (desambiguar (list 'MID$ (symbol "(") 1 (symbol ",") '- 2 '+ 'K (symbol ",") 3 (symbol ")")))
 ; (MID3$ ( 1 , -u 2 + K , 3 ))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (defn desambiguar-)
+
 (defn desambiguar [expr]
+;; (desambiguar (list 'MID$ (symbol "(") 1 (symbol ",") 2 (symbol ",") 3 (symbol ")")))
+  (prn expr)
+  (prn (count expr))
+
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

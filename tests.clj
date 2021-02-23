@@ -212,6 +212,44 @@
    (is (= '("HOLA" "MUNDO" 10 20) (extraer-data (list '(10 (PRINT X) (REM ESTE NO) (DATA 30)) '(20 (DATA HOLA)) (list 100 (list 'DATA 'MUNDO (symbol ",") 10 (symbol ",") 20))))))
 )
 
+; user=> (ejecutar-asignacion '(X = 5) ['((10 (PRINT X))) [10 1] [] [] [] 0 {}])
+; [((10 (PRINT X))) [10 1] [] [] [] 0 {X 5}]
+; user=> (ejecutar-asignacion '(X = 5) ['((10 (PRINT X))) [10 1] [] [] [] 0 '{X 2}])
+; [((10 (PRINT X))) [10 1] [] [] [] 0 {X 5}]
+; user=> (ejecutar-asignacion '(X = X + 1) ['((10 (PRINT X))) [10 1] [] [] [] 0 '{X 2}])
+; [((10 (PRINT X))) [10 1] [] [] [] 0 {X 3}]
+; user=> (ejecutar-asignacion '(X$ = X$ + " MUNDO") ['((10 (PRINT X))) [10 1] [] [] [] 0 '{X$ "HOLA"}])
+; [((10 (PRINT X))) [10 1] [] [] [] 0 {X$ "HOLA MUNDO"}]
+(deftest ejecutar-asignacion?
+   ;; (is (= '[((10 (PRINT X))) [10 1] [] [] [] 0 {X 5}] (ejecutar-asignacion '(X = 5) ['((10 (PRINT X))) [10 1] [] [] [] 0 {}])))
+   ; TODO implementar y completar tests
+)
+
+; user=> (preprocesar-expresion '(X$ + " MUNDO" + Z$) ['((10 (PRINT X))) [10 1] [] [] [] 0 '{X$ "HOLA"}])
+; ("HOLA" + " MUNDO" + "")
+; user=> (preprocesar-expresion '(X + . / Y% * Z) ['((10 (PRINT X))) [10 1] [] [] [] 0 '{X 5 Y% 2}])
+; (5 + 0 / 2 * 0)
+(deftest preprocesar-expresion?
+   (is (= '("HOLA" + " MUNDO" + "") (preprocesar-expresion '(X$ + " MUNDO" + Z$) ['((10 (PRINT X))) [10 1] [] [] [] 0 '{X$ "HOLA"}])))
+   (is (= '(5 + 0 / 2 * 0) (preprocesar-expresion '(X + . / Y% * Z) ['((10 (PRINT X))) [10 1] [] [] [] 0 '{X 5 Y% 2}])))
+)
+
+; user=> (desambiguar (list '- 2 '* (symbol "(") '- 3 '+ 5 '- (symbol "(") '+ 2 '/ 7 (symbol ")") (symbol ")")))
+; (-u 2 * ( -u 3 + 5 - ( 2 / 7 ) ))
+; user=> (desambiguar (list 'MID$ (symbol "(") 1 (symbol ",") 2 (symbol ")")))
+; (MID$ ( 1 , 2 ))
+; user=> (desambiguar (list 'MID$ (symbol "(") 1 (symbol ",") 2 (symbol ",") 3 (symbol ")")))
+; (MID3$ ( 1 , 2 , 3 ))
+; user=> (desambiguar (list 'MID$ (symbol "(") 1 (symbol ",") '- 2 '+ 'K (symbol ",") 3 (symbol ")")))
+; (MID3$ ( 1 , -u 2 + K , 3 ))
+(deftest desambiguar? 
+   ;TODO: implementar
+   ;; (is (= '(-u 2 * ( -u 3 + 5 - ( 2 / 7 ) )) (desambiguar (list '- 2 '* (symbol "(") '- 3 '+ 5 '- (symbol "(") '+ 2 '/ 7 (symbol ")") (symbol ")")))))
+   ;; (is (= '(MID$ ( 1 , 2 )) (desambiguar (list 'MID$ (symbol "(") 1 (symbol ",") 2 (symbol ")")))))
+   ;; (is (= '(MID3$ ( 1 , 2 , 3 )) (desambiguar (list 'MID$ (symbol "(") 1 (symbol ",") 2 (symbol ",") 3 (symbol ")")))))
+   ;; (is (= '(MID3$ ( 1 , -u 2 + K , 3 )) (desambiguar (list 'MID$ (symbol "(") 1 (symbol ",") '- 2 '+ 'K (symbol ",") 3 (symbol ")")))))
+)
+
 (deftest precedencia?
    (is (= 1 (precedencia 'OR)))
    (is (= 2 (precedencia 'AND)))
