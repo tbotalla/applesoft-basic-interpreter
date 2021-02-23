@@ -1368,21 +1368,43 @@
 ; user=> (ejecutar-asignacion '(X$ = X$ + " MUNDO") ['((10 (PRINT X))) [10 1] [] [] [] 0 '{X$ "HOLA"}])
 ; [((10 (PRINT X))) [10 1] [] [] [] 0 {X$ "HOLA MUNDO"}]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn es-asignacion? [sentencia]
-
+(defn cant-variables [sentencia]
+  (count 
+    (filter 
+      #(true? %) 
+      (map #(nombre-variable-valido? %) sentencia)
+    )
+  )
 )
 
-(defn es-asignacion? [sentencia]
-
-)
-
+; Analiza cuantos posibles nombres de variable hay en la expresion,
+; si hay solo uno entonces actualiza el ambiente directamente.
+; Si hay mas de uno, entonces calcula la expresion y luego
+; actualiza el ambiente
 (defn ejecutar-asignacion [sentencia amb]
   (let
     [
+      var (first sentencia)
       vars-ambiente (amb 6)
+      cant-variables-sentencia (cant-variables sentencia)
     ]
-    (
-
+    (cond
+      (= cant-variables-sentencia 1) 
+        (assoc 
+          amb 
+          6
+          ; guarda el valor de la asignacion en el ambiente
+          (assoc vars-ambiente var (peek (subvec (vec sentencia) 2)))
+        )
+      
+      (> cant-variables-sentencia 1) 
+        (assoc 
+          amb 
+          6
+          ; calcula el valor de la expresion a asignar y lo guarda en el ambiente en la variable correspondiente
+          (assoc vars-ambiente var (calcular-expresion (drop 2 sentencia) amb))
+        )        
+      :else amb
     )
   )
 )
