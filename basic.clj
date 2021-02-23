@@ -123,15 +123,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn evaluar-linea
   ([sentencias amb]
-    (prn (pr-str "evaluar-linea diadico: sentencias=" sentencias " amb=" amb)) ; 
+    ;; (prn (pr-str "evaluar-linea diadico: sentencias=" sentencias " amb=" amb)) ; 
     (let [sentencias-con-nexts-expandidos (expandir-nexts sentencias)]
          (evaluar-linea sentencias-con-nexts-expandidos sentencias-con-nexts-expandidos amb)))
   ([linea sentencias amb]
-    (prn (pr-str "evaluar-linea triadico: sentencias=" sentencias " amb=" amb " linea=" linea)) ; @TBOTALLA BORRAR
+    ;; (prn (pr-str "evaluar-linea triadico: sentencias=" sentencias " amb=" amb " linea=" linea)) ; @TBOTALLA BORRAR
     (if (empty? sentencias)
         [:sin-errores amb]
         (let [sentencia (anular-invalidos (first sentencias)), par-resul (evaluar sentencia amb)]
-             (prn (pr-str "evaluar-linea triadico: sentencia=" sentencia " par-resul=" par-resul)) ; @tbotalla borrar
+            ;;  (prn (pr-str "evaluar-linea triadico: sentencia=" sentencia " par-resul=" par-resul)) ; @tbotalla borrar
              (if (or (nil? (first par-resul)) (contains? #{:omitir-restante, :error-parcial, :for-inconcluso} (first par-resul)))
                  (if (and (= (first (amb 1)) :ejecucion-inmediata) (= (first par-resul) :for-inconcluso))
                      (recur linea (take-last (second (second (second par-resul))) linea) (second par-resul))
@@ -473,7 +473,7 @@
 (defn imprimir
   ([v]
      (let [expresiones (v 0), amb (v 1)]
-          (prn (pr-str "imprimir monadico: expresiones=" expresiones " amb=" amb)) ;@tbotalla
+          ;; (prn (pr-str "imprimir monadico: expresiones=" expresiones " amb=" amb)) ;@tbotalla
           (cond
             (empty? expresiones) (do (prn) (flush) :sin-errores)
             (and (empty? (next expresiones)) (= (first expresiones) (list (symbol ";")))) (do (pr) (flush) :sin-errores)
@@ -481,13 +481,13 @@
             (= (first expresiones) (list (symbol ";"))) (do (pr) (flush) (recur [(next expresiones) amb]))
             (= (first expresiones) (list (symbol ",t"))) (do (printf "\t\t") (flush) (recur [(next expresiones) amb]))
             :else (let [resu (eliminar-cero-entero (calcular-expresion (first expresiones) amb))]
-                        (prn (pr-str "imprimir monadico: resultado calcular-expresion=" (calcular-expresion (first expresiones) amb))) ;@tbotalla
-                        (prn (pr-str "imprimir monadico: resu=" resu)) ;@tbotalla
+                        ;; (prn (pr-str "imprimir monadico: resultado calcular-expresion=" (calcular-expresion (first expresiones) amb))) ;@tbotalla
+                        ;; (prn (pr-str "imprimir monadico: resu=" resu)) ;@tbotalla
                         (if (nil? resu)
                             resu
                             (do (print resu) (flush) (recur [(next expresiones) amb])))))))
   ([lista-expr amb]
-    (prn (pr-str "imprimir diadico: lista-expr=" lista-expr " amb=" amb)) ;@tbotalla
+    ;; (prn (pr-str "imprimir diadico: lista-expr=" lista-expr " amb=" amb)) ;@tbotalla
     (let [nueva (cons (conj [] (first lista-expr)) (rest lista-expr)),
           variable? #(or (variable-integer? %) (variable-float? %) (variable-string? %)),
           funcion? #(and (> (aridad %) 0) (not (operador? %))),		  
@@ -496,7 +496,7 @@
                          (conj (conj %1 (symbol ";")) %2) (conj %1 %2)) nueva),
           ex (partition-by #(= % (symbol ",t")) (desambiguar-comas interc)),
           expresiones (apply concat (map #(partition-by (fn [x] (= x (symbol ";"))) %) ex))]
-          (prn (pr-str "imprimir diadico: nueva=" nueva " variable?=" variable? " funcion?=" funcion? " interc=" interc " ex=" ex " expresiones=" expresiones)) ;@tbotalla
+          ;; (prn (pr-str "imprimir diadico: nueva=" nueva " variable?=" variable? " funcion?=" funcion? " interc=" interc " ex=" ex " expresiones=" expresiones)) ;@tbotalla
          (imprimir [expresiones amb])))
 )
 
@@ -909,7 +909,7 @@
 ; [((10 (PRINT X)) (15 (X = X - 1)) (20 (X = 100))) [:ejecucion-inmediata 0] [] [] [] 0 {}]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn cargar-linea [linea amb]
-  (prn (pr-str "carga-linea: linea=" linea " amb=" amb))
+  ;; (prn (pr-str "carga-linea: linea=" linea " amb=" amb))
   ; (println "Num linea:")
   ; (prn (first linea))
   ; (println "Ambiente: ")
@@ -954,7 +954,7 @@
 ; y devuelve ((NEXT A) (NEXT B) (NEXT C))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn expandir-next [s]
-  (prn s)
+  ;; (prn s)
   (if (comienza-con-next? s)
       ; Por cada elemento despues del NEXT (elimina las comas), genera una
       ; lista como (NEXT <elemento>)
@@ -1201,12 +1201,12 @@
 (defn buscar-lineas-restantes
   ([amb] (buscar-lineas-restantes (amb 1) (amb 0)))
   ([act prg]
-    (prn (str "buscar-lineas-restantes: act=" act " prg=" prg))
+    ;; (prn (str "buscar-lineas-restantes: act=" act " prg=" prg))
     (let [
       nro-linea (first act) , 
       sentencias-restantes (second act) , ; Sentencias restantes de la linea actual: <nro-linea>
     ]
-      (prn (pr-str "buscar-lineas-restantes: nro-linea=" nro-linea " sentencias-restantes=" sentencias-restantes))
+      ;; (prn (pr-str "buscar-lineas-restantes: nro-linea=" nro-linea " sentencias-restantes=" sentencias-restantes))
       (if 
         (or 
           (= 0 (count (filter #(= nro-linea (first %)) prg)))
@@ -1217,7 +1217,7 @@
             linea-actual (first (filter #(= nro-linea (first %)) prg)) ,
             lineas-siguientes (filter #(< nro-linea (first %)) prg) ; Lineas siguientes a la linea actual: <nro-linea>
           ]
-            (prn (pr-str "buscar-lineas-restantes: linea-actual=" linea-actual " lineas-siguientes=" lineas-siguientes))
+            ;; (prn (pr-str "buscar-lineas-restantes: linea-actual=" linea-actual " lineas-siguientes=" lineas-siguientes))
             
             (concat 
               ; Sentencias de la linea actual. En estas si se expanden los NEXT, en las demas no.
