@@ -628,7 +628,24 @@
           -u (- operando)
           LEN (count operando)
           STR$ (if (not (number? operando)) (dar-error 163 nro-linea) (eliminar-cero-entero operando)) ; Type mismatch error
-          CHR$ (if (or (< operando 0) (> operando 255)) (dar-error 53 nro-linea) (str (char operando)))))) ; Illegal quantity error
+          CHR$ (if (or (< operando 0) (> operando 255)) (dar-error 53 nro-linea) (str (char operando)))
+          ATN (if (not (number? operando)) (dar-error 163 nro-linea) (Math/atan operando)) ; Type mismatch error ; Llama a la funcion de java atan del package Math
+          INT (if (not (number? operando)) (dar-error 163 nro-linea) (int operando)) ; Type mismatch error
+          SIN (if (not (number? operando)) (dar-error 163 nro-linea) (Math/sin operando)) ; Type mismatch error ; Llama a la funcion de java sin del package Math
+          ASC (if (not (string? operando)) (dar-error 163 nro-linea) (int (first operando))) ; Type mismatch error ; int convierte ya al ASCII a partir de un string
+        ))) ; Illegal quantity error
+;; (def funciones_aridad_1
+;;   #{
+;;     "ATN" hecha
+;;     "INT" hecha
+;;     "SIN" hecha
+;;     "LEN" no tocar
+;;     "ASC" hecha
+;;     "CHR$" no tocar
+;;     "STR$" no tocar
+;;   }
+;; )
+
   ([operador operando1 operando2 nro-linea]
     (if (or (nil? operando1) (nil? operando2))
         (dar-error 16 nro-linea)  ; Syntax error
@@ -645,7 +662,54 @@
           AND (let [op1 (+ 0 operando1), op2 (+ 0 operando2)] (if (and (not= op1 0) (not= op2 0)) 1 0))
           MID$ (if (< operando2 1)
                    (dar-error 53 nro-linea)  ; Illegal quantity error
-                   (let [ini (dec operando2)] (if (>= ini (count operando1)) "" (subs operando1 ini))))))))
+                   (let [ini (dec operando2)] (if (>= ini (count operando1)) "" (subs operando1 ini))))
+          * (if (and (number? operando1) (number? operando2))
+                (* operando1 operando2)
+                (dar-error 163 nro-linea))
+          - (if (and (number? operando1) (number? operando2))
+                (- operando1 operando2)
+                (dar-error 163 nro-linea))
+          \^ (if (and (number? operando1) (number? operando2)) ; TODO: revisar esto
+                (Math/pow operando1 operando2)
+                (dar-error 163 nro-linea))
+          OR (let [op1 (+ 0 operando1), op2 (+ 0 operando2)] (if (or (not= op1 0) (not= op2 0)) 1 0))
+          <> (if (and (string? operando1) (string? operando2))
+                (if (not= operando1 operando2) 1 0)
+                (if (not= (+ 0 operando1) (+ 0 operando2)) 1 0))
+          < (if (and (number? operando1) (number? operando2))
+                (< operando1 operando2)
+                (dar-error 163 nro-linea))
+          <= (if (and (number? operando1) (number? operando2))
+                (<= operando1 operando2)
+                (dar-error 163 nro-linea))
+          > (if (and (number? operando1) (number? operando2))
+                (> operando1 operando2)
+                (dar-error 163 nro-linea))
+          >= (if (and (number? operando1) (number? operando2))
+                (>= operando1 operando2)
+                (dar-error 163 nro-linea))
+        ))
+    )
+  )
+;; (def funciones_aridad_2
+;;   #{
+;;     "*" hecha
+;;     "/" no tocar
+;;     "+" no tocar
+;;     "-" hecha
+;;     "^" hecha
+;;     "OR" hecha
+;;     "AND" no tocar
+;;     "=" no tocar
+;;     "<>" hecha
+;;     "<" hecha
+;;     "<=" hecha
+;;     ">" hecha
+;;     ">=" hecha
+;;     "MID$" no tocar
+;;   }
+;; )
+
   ([operador operando1 operando2 operando3 nro-linea]
     (if (or (nil? operando1) (nil? operando2) (nil? operando3)) (dar-error 16 nro-linea)  ; Syntax error
         (case operador
@@ -654,7 +718,17 @@
                        (or (< operando2 1) (< operando3 0)) (dar-error 53 nro-linea)  ; Illegal quantity error
                        (>= ini tam) ""
                        (>= fin tam) (subs operando1 ini tam)
-                       :else (subs operando1 ini fin))))))
+                       :else (subs operando1 ini fin)
+                      )
+                )
+        )
+    )
+  )
+;; (def funciones_aridad_3
+;;   #{
+;;     "MID3$" no tocar
+;;   }
+;; )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1638,6 +1712,7 @@
     "OR"
     "AND"
     "="
+    "<>"
     "<"
     "<="
     ">"
