@@ -42,7 +42,7 @@
 (declare buscar-lineas-restantes)         ; IMPLEMENTAR x
 (declare continuar-linea)                 ; IMPLEMENTAR x
 (declare extraer-data)                    ; IMPLEMENTAR x
-(declare ejecutar-asignacion)             ; IMPLEMENTAR 
+(declare ejecutar-asignacion)             ; IMPLEMENTAR x
 (declare preprocesar-expresion)           ; IMPLEMENTAR x
 (declare desambiguar)                     ; IMPLEMENTAR x
 (declare precedencia)                     ; IMPLEMENTAR x

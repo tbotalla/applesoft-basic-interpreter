@@ -2,6 +2,35 @@
 
 (load-file "basic.clj")
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Funciones a testear
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (declare palabra-reservada?)              ; IMPLEMENTAR x
+;; (declare operador?)                       ; IMPLEMENTAR x
+;; (declare anular-invalidos)                ; IMPLEMENTAR x
+;; (declare cargar-linea)                    ; IMPLEMENTAR x
+;; (declare expandir-nexts)                  ; IMPLEMENTAR x
+;; (declare dar-error)                       ; IMPLEMENTAR x
+;; (declare variable-float?)                 ; IMPLEMENTAR x
+;; (declare variable-integer?)               ; IMPLEMENTAR x
+;; (declare variable-string?)                ; IMPLEMENTAR x
+;; (declare contar-sentencias)               ; IMPLEMENTAR x
+;; (declare buscar-lineas-restantes)         ; IMPLEMENTAR x
+;; (declare continuar-linea)                 ; IMPLEMENTAR x
+;; (declare extraer-data)                    ; IMPLEMENTAR x
+;; (declare ejecutar-asignacion)             ; IMPLEMENTAR x
+;; (declare preprocesar-expresion)           ; IMPLEMENTAR x
+;; (declare desambiguar)                     ; IMPLEMENTAR x
+;; (declare precedencia)                     ; IMPLEMENTAR x
+;; (declare aridad)                          ; IMPLEMENTAR x
+;; (declare eliminar-cero-decimal)           ; IMPLEMENTAR x
+;; (declare eliminar-cero-entero)            ; IMPLEMENTAR x
+
+
+; user=> (palabra-reservada? 'REM)
+; true
+; user=> (palabra-reservada? 'SPACE)
+; false
 (deftest test-palabra-reservada?
    ;; (is (= true (palabra-reservada? 'LOAD)))
    ;; (is (= true (palabra-reservada? 'SAVE)))
@@ -39,6 +68,12 @@
    (is (= true (palabra-reservada? 'STR$)))
 )
 
+; user=> (operador? '+)
+; true
+; user=> (operador? (symbol "+"))
+; true
+; user=> (operador? (symbol "%"))
+; false
 (deftest test-operador?
    (is (= true (operador? '+)))
    (is (= true (operador? (symbol "+"))))
@@ -58,11 +93,21 @@
    (is (= true (operador? 'OR)))
 )
 
+; user=> (anular-invalidos '(IF X & * Y < 12 THEN LET ! X = 0))
+; (IF X nil * Y < 12 THEN LET nil X = 0)
 (deftest test-anular-invalidos?
    (is (= '(IF X nil * Y < 12 THEN LET nil X = 0) (anular-invalidos '(IF X & * Y < 12 THEN LET ! X = 0))))
    (is (= '(IF nil nil nil nil nil nil nil nil) (anular-invalidos '(IF ! & \\ _ \{ \} | \~))))
 )
 
+; user=> (cargar-linea '(10 (PRINT X)) [() [:ejecucion-inmediata 0] [] [] [] 0 {}])
+; [((10 (PRINT X))) [:ejecucion-inmediata 0] [] [] [] 0 {}]
+; user=> (cargar-linea '(20 (X = 100)) ['((10 (PRINT X))) [:ejecucion-inmediata 0] [] [] [] 0 {}])
+; [((10 (PRINT X)) (20 (X = 100))) [:ejecucion-inmediata 0] [] [] [] 0 {}]
+; user=> (cargar-linea '(15 (X = X + 1)) ['((10 (PRINT X)) (20 (X = 100))) [:ejecucion-inmediata 0] [] [] [] 0 {}])
+; [((10 (PRINT X)) (15 (X = X + 1)) (20 (X = 100))) [:ejecucion-inmediata 0] [] [] [] 0 {}]
+; user=> (cargar-linea '(15 (X = X - 1)) ['((10 (PRINT X)) (15 (X = X + 1)) (20 (X = 100))) [:ejecucion-inmediata 0] [] [] [] 0 {}])
+; [((10 (PRINT X)) (15 (X = X - 1)) (20 (X = 100))) [:ejecucion-inmediata 0] [] [] [] 0 {}]
 (deftest test-cargar-linea?
    (is (= '[((10 (PRINT X))) [:ejecucion-inmediata 0] [] [] [] 0 {}] (cargar-linea '(10 (PRINT X)) [() [:ejecucion-inmediata 0] [] [] [] 0 {}])))
    (is (= '[((10 (PRINT X)) (20 (X = 100))) [:ejecucion-inmediata 0] [] [] [] 0 {}] (cargar-linea '(20 (X = 100)) ['((10 (PRINT X))) [:ejecucion-inmediata 0] [] [] [] 0 {}])))
@@ -82,7 +127,18 @@
    (is (= '((PRINT 1) (NEXT A) (NEXT B) (NEXT C) (PRINT 10) (NEXT D) (NEXT E)) (expandir-nexts '((PRINT 1) (NEXT A , B , C) (PRINT 10) (NEXT D,E)))))
 )
 
-
+; user=> (dar-error 16 [:ejecucion-inmediata 4])
+;
+; ?SYNTAX ERRORnil
+; user=> (dar-error "?ERROR DISK FULL" [:ejecucion-inmediata 4])
+;
+; ?ERROR DISK FULLnil
+; user=> (dar-error 16 [100 3])
+;
+; ?SYNTAX ERROR IN 100nil
+; user=> (dar-error "?ERROR DISK FULL" [100 3])
+;
+; ?ERROR DISK FULL IN 100nil
 (deftest test-dar-error?
    ; TODO: ver como armar estos tests para hacer un contains de lo que se printea
    ; (is (= '?SYNTAX ERRORnil (dar-error 16 [:ejecucion-inmediata 4])))
@@ -119,18 +175,36 @@
    ;  cod)
 )
 
+; user=> (variable-float? 'X)
+; true
+; user=> (variable-float? 'X%)
+; false
+; user=> (variable-float? 'X$)
+; false
 (deftest test-variable-float?
    (is (= true (variable-float? 'X)))
    (is (= false (variable-float? 'X%)))
    (is (= false (variable-float? 'X$)))
 )
 
+; user=> (variable-integer? 'X%)
+; true
+; user=> (variable-integer? 'X)
+; false
+; user=> (variable-integer? 'X$)
+; false
 (deftest test-variable-integer?
    (is (= true (variable-integer? 'X%)))
    (is (= false (variable-integer? 'X)))
    (is (= false (variable-integer? 'X$)))
 )
 
+; user=> (variable-string? 'X$)
+; true
+; user=> (variable-string? 'X)
+; false
+; user=> (variable-string? 'X%)
+; false
 (deftest test-variable-string?
    (is (= true (variable-string? 'X$)))
    (is (= false (variable-string? 'X)))
@@ -249,6 +323,17 @@
    (is (= (list 'MID3$ (symbol "(") 1 (symbol ",") (symbol "-u") 2 '+ 'K (symbol ",") 3 (symbol ")")) (desambiguar (list 'MID$ (symbol "(") 1 (symbol ",") '- 2 '+ 'K (symbol ",") 3 (symbol ")")))))
 )
 
+
+; user=> (precedencia 'OR)
+; 1
+; user=> (precedencia 'AND)
+; 2
+; user=> (precedencia '*)
+; 6
+; user=> (precedencia '-u)
+; 7
+; user=> (precedencia 'MID$)
+; 9
 (deftest precedencia?
    (is (= 1 (precedencia 'OR)))
    (is (= 2 (precedencia 'AND)))
@@ -257,6 +342,16 @@
    (is (= 9 (precedencia 'MID$)))
 )
 
+; user=> (aridad 'THEN)
+; 0
+; user=> (aridad 'SIN)
+; 1
+; user=> (aridad '*)
+; 2
+; user=> (aridad 'MID$)
+; 2
+; user=> (aridad 'MID3$)
+; 3
 (deftest aridad?
    (is (= 0 (aridad 'THEN)))
    (is (= 1 (aridad 'SIN)))
