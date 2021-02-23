@@ -1418,7 +1418,7 @@
         valor-encontrado
       )
       ; Si no lo encontro devuelve el valor por defecto segun el tipo de variable
-      (valor-por-defecto-de-variable var)
+      (valor-por-defecto-de-variable-segun-tipo var)
       valor-encontrado
     )
   )
