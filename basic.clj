@@ -40,11 +40,11 @@
 (declare variable-string?)                ; IMPLEMENTAR x
 (declare contar-sentencias)               ; IMPLEMENTAR x
 (declare buscar-lineas-restantes)         ; IMPLEMENTAR x
-(declare continuar-linea)                 ; IMPLEMENTAR
-(declare extraer-data)                    ; IMPLEMENTAR
-(declare ejecutar-asignacion)             ; IMPLEMENTAR
-(declare preprocesar-expresion)           ; IMPLEMENTAR
-(declare desambiguar)                     ; IMPLEMENTAR
+(declare continuar-linea)                 ; IMPLEMENTAR x
+(declare extraer-data)                    ; IMPLEMENTAR x
+(declare ejecutar-asignacion)             ; IMPLEMENTAR 
+(declare preprocesar-expresion)           ; IMPLEMENTAR x
+(declare desambiguar)                     ; IMPLEMENTAR x
 (declare precedencia)                     ; IMPLEMENTAR x
 (declare aridad)                          ; IMPLEMENTAR x
 (declare eliminar-cero-decimal)           ; IMPLEMENTAR x
@@ -360,7 +360,7 @@
 ; 7
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn calcular-expresion [expr amb]
-  (prn (pr-str "calcular-expresion: expr=" expr " amb=" amb)) ;@tbotalla
+  ;; (prn (pr-str "calcular-expresion: expr=" expr " amb=" amb)) ;@tbotalla
   (calcular-rpn (shunting-yard (desambiguar (preprocesar-expresion expr amb))) (amb 1))
 )
 
@@ -1457,13 +1457,89 @@
 ; user=> (desambiguar (list 'MID$ (symbol "(") 1 (symbol ",") '- 2 '+ 'K (symbol ",") 3 (symbol ")")))
 ; (MID3$ ( 1 , -u 2 + K , 3 ))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (defn desambiguar-)
+; Cuenta la cantidad de parametros luego de un MID "(". Para hacerlo lee elementos de expresion
+; hasta llegar a un ")". Luego de eso filtra los elementos que no son comas "," y retorna verdadero
+; si el tamaño del arreglo resultante es 2 (pues para 3 parametros se necesitan 3 comas)
+(defn es-mid-ternario [n expresion]
+  ;; (prn (str "es-mid-ternario: n=" n " expresion=" expresion))
+  (= 
+    2
+    (count 
+      (filter 
+        #(= "," (str %)) 
+        (take-while 
+          #(not= ")" (str %))
+          (subvec expresion n) 
+        )
+      )
+    )
+  )
+)
+
+; Si antes de un + hay un: ), un numero, o un string entonces no es unario
+(defn es-mas-no-unario [anterior]
+  ;; (prn (str "es-mas-no-unario: anterior=" anterior))
+  (and
+    (not= :sin-anterior anterior)
+    (or
+      (= (symbol ")") anterior)
+      (number? anterior)
+      (string? anterior)
+    )
+  )
+)
+
+; Si antes de un - hay un: ), un numero, o un string entonces no es unario
+(defn es-menos-no-unario [anterior]
+  ;; (prn (str "es-menos-no-unario: anterior=" anterior))
+  (and
+    (not= :sin-anterior anterior)
+    (or
+      (= (symbol ")") anterior)
+      (number? anterior)
+      (string? anterior)
+    )
+  )
+)
+
+(defn desambiguar-elemento [n expresion]
+  ;; (prn (str "desambiguar-elemento: n=" n " expresion=" expresion))
+  ;; (prn (str "desambiguar-elemento: elemento-anterior=" (get expresion (- n 1) :sin-anterior) " elemento-actual=" (get expresion n :fin)))
+  (let
+    [
+      elemento-anterior (get expresion (- n 1) :sin-anterior)
+      elemento-actual (get expresion n :fin)
+    ]
+    (cond
+      (= :fin elemento-actual) expresion ; condicion de corte
+      (= (symbol "+") elemento-actual) 
+        (if 
+          (es-mas-no-unario elemento-anterior)
+          (desambiguar-elemento (+ n 1) expresion)
+          (desambiguar-elemento (+ n 1) (assoc expresion n nil)) ; Si es unario lo pone en nil para luego eliminarlo
+        )
+      (= (symbol "-") elemento-actual)
+        (if 
+          (es-menos-no-unario elemento-anterior)
+          (desambiguar-elemento (+ n 1) expresion)
+          (desambiguar-elemento (+ n 1) (assoc expresion n (symbol "-u"))) ; Si es unario lo reemplaza por -u
+        )
+      (= (symbol "MID$") elemento-actual)
+        (if 
+          (es-mid-ternario (+ n 2) expresion) ; saltea el parentesis despues del MID$ para analizar si es ternario
+          (desambiguar-elemento (+ n 1) (assoc expresion n (symbol "MID3$"))) ; Si es ternario lo reemplaza por MID3$
+          (desambiguar-elemento (+ n 1) expresion)
+        )
+      :else (desambiguar-elemento (+ n 1) expresion)
+    )
+  )
+)
 
 (defn desambiguar [expr]
-;; (desambiguar (list 'MID$ (symbol "(") 1 (symbol ",") 2 (symbol ",") 3 (symbol ")")))
-  (prn expr)
-  (prn (count expr))
-
+  (filter 
+    #(not (nil? %)) ; los nil son los "+" unarios, por eso los filtra
+    (desambiguar-elemento 0 (vec expr))
+  )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
