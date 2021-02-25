@@ -906,23 +906,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn operador? [x]
   (contains? operadores (clojure.string/upper-case x))
-
-  ;; (case x
-  ;;   + true
-  ;;   - true
-  ;;   * true
-  ;;   / true
-  ;;   \^ true ; necesario escaparlo
-  ;;   = true
-  ;;   <> true
-  ;;   < true
-  ;;   <= true
-  ;;   > true
-  ;;   >= true
-  ;;   AND true
-  ;;   OR true
-  ;;   false
-  ;; )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -931,26 +914,6 @@
 ; en otro caso devuelve el parametro recibido
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn es-invalido? [simbolo]
-  ;; (case simbolo
-  ;;   ! nil
-  ;;   ; # nil
-  ;;   & nil ; necesario escaparlo
-  ;;   ; ' nil
-  ;;   ; ` nil
-  ;;   ; ´ nil
-  ;;   ; @ nil
-  ;;   ; [ nil
-  ;;   ; ] nil
-  ;;   \\ nil
-  ;;   _ nil
-  ;;   \{ nil
-  ;;   \} nil
-  ;;   | nil
-  ;;   \~ nil
-  ;;   ; TODO: tildes?
-  ;;   simbolo
-  ;; )
-
   (if 
     (contains? simbolos_invalidos (clojure.string/upper-case simbolo))
     nil

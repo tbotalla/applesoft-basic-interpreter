@@ -140,7 +140,9 @@
 ;
 ; ?ERROR DISK FULL IN 100nil
 (deftest test-dar-error?
-   ; TODO: ver como armar estos tests para hacer un contains de lo que se printea
+   ; TODO: ver como armar estos tests para hacer un contains de lo que se printea. Probar siguiente:
+   ; (let [printed (with-out-str (dar-error 16 [:ejecucion-inmediata 4]))] (prn (str "PRINTED=" printed)))
+
    ; (is (= '?SYNTAX ERRORnil (dar-error 16 [:ejecucion-inmediata 4])))
 
    ; user=> (dar-error 16 [:ejecucion-inmediata 4])
@@ -155,24 +157,6 @@
    ; user=> (dar-error "?ERROR DISK FULL" [100 3])
    ;
    ; ?ERROR DISK FULL IN 100nil
-
-   ;   (case cod
-   ;  0 "?NEXT WITHOUT FOR ERROR"
-   ;  6 "FILE NOT FOUND"
-   ;  15 "NOT DIRECT COMMAND"
-   ;  16 "?SYNTAX ERROR"
-   ;  22 "?RETURN WITHOUT GOSUB ERROR"
-   ;  42 "?OUT OF DATA ERROR"
-   ;  53 "?ILLEGAL QUANTITY ERROR"
-   ;  69 "?OVERFLOW ERROR"
-   ;  90 "?UNDEF'D STATEMENT ERROR"
-   ;  100 "?ILLEGAL DIRECT ERROR"
-   ;  133 "?DIVISION BY ZERO ERROR"
-   ;  163 "?TYPE MISMATCH ERROR"
-   ;  176 "?STRING TOO LONG ERROR"
-   ;  200 "?LOAD WITHIN PROGRAM ERROR"
-   ;  201 "?SAVE WITHIN PROGRAM ERROR"
-   ;  cod)
 )
 
 ; user=> (variable-float? 'X)
