@@ -607,12 +607,24 @@
         NEXT (if (<= (count (next sentencia)) 1)
                  (retornar-al-for amb (fnext sentencia))
                   (do (dar-error 16 (amb 1)) [nil amb]))  ; Syntax error
+        LIST (mostrar-listado (amb 0)) ; Muestra las sentencias del programa, las cuales estan en la 1° posicion del ambiente
+        LET (evaluar (next sentencia) amb) ; Para el LET simplemente excluye la palabra y evalua la asignacion
+        END [nil amb] ; Mantiene el ambiente e ignora la sentencia
+        READ (leer-data (next sentencia) amb) ; leer-data recibe los valores separados por "," despues del DATA
+        RESTORE (assoc amb 5 0) ; Retorna el puntero del DATA (data-ptr === amb[5]) al principio
+        CLEAR (assoc amb 6 {}); Borra por completo el mapa de variables (var-mem === amb[6])
         (if (= (second sentencia) '=)
             (let [resu (ejecutar-asignacion sentencia amb)]
                  (if (nil? resu)
                      [nil amb]
                      [:sin-errores resu]))
-            (do (dar-error 16 (amb 1)) [nil amb]))))  ; Syntax error
+            (do (dar-error 16 (amb 1)) [nil amb]))
+      )
+  )  ; Syntax error
+
+; Faltantes identificadas:
+; LIST (hecha), LET (hecha), END (hecha), READ (hecha), RESTORE (hecha), CLEAR (hecha, no se usa en los ejemplos), DATA, ? (ver si hay que incluirlo al ?)
+; [(prog-mem)  [prog-ptrs]  [gosub-return-stack]  [for-next-stack]  [data-mem]  data-ptr  {var-mem}]
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
