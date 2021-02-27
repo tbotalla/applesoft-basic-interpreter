@@ -1,3 +1,4 @@
+; Tomas Enrique Botalla - Padron 96356
 ; https://porkrind.org/a2
 ; https://www.calormen.com/jsbasic
 ; https://www.scullinsteel.com/apple2/
@@ -1003,11 +1004,16 @@
 ; y devuelve ((NEXT A) (NEXT B) (NEXT C))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn expandir-next [s]
-  ;; (prn s)
+  ;; (prn (count s))
   (if (comienza-con-next? s)
       ; Por cada elemento despues del NEXT (elimina las comas), genera una
       ; lista como (NEXT <elemento>)
-      (map #(list 'NEXT %) (remove #(= (symbol ",") %) (drop-while #(= 'NEXT %) s) ))
+
+      (if 
+        (= 1 (count s)) ; Un NEXT sin params se devuelve tal cual
+        s
+        (map #(list 'NEXT %) (remove #(= (symbol ",") %) (drop-while #(= 'NEXT %) s) ))
+      )
       s
   )
 )
@@ -1036,8 +1042,11 @@
 (defn expandir-nexts [n]
   ; Tener en cuenta que se aplica a todas las sentencias, por lo tanto
   ; primero verificar si tiene un NEXT antes de expandirla
-  (reverse (expandir-elementos n '()))
-
+  (if 
+    (nil? n) 
+    nil ; Mencionado en el Campus
+    (reverse (expandir-elementos n '()))
+  )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1101,6 +1110,7 @@
 ;; @tbotalla
 ;; nombre-variable-no-contiene-palabra-reservada?: verifica si el 
 ;; simbolo recibido como parametro contiene alguna palabra reservada
+;; Finalmente no usada, existe la funcion: palabra-reservada?
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn nombre-variable-no-contiene-palabra-reservada? [x]
   (if 
@@ -1122,7 +1132,8 @@
   (and
     (primer-caracter-alfabetico? (clojure.string/upper-case x))
     (longitud-variable-valida? (clojure.string/upper-case x))
-    (nombre-variable-no-contiene-palabra-reservada? (clojure.string/upper-case x))
+    (= false (palabra-reservada? x))
+    ;; (nombre-variable-no-contiene-palabra-reservada? (clojure.string/upper-case x))
   )
 )
 
@@ -1632,28 +1643,44 @@
     (= token (symbol ",")) 0
     (= token (symbol "OR")) 1
     (= token (symbol "AND")) 2
-    (= token (symbol "<>")) 3
-    (= token (symbol "=")) 3
+    (= token (symbol "NOT")) 3
+    
+    (= token (symbol "<>")) 4
+    (= token (symbol "=")) 4
     (= token (symbol "<")) 4
     (= token (symbol "<=")) 4
     (= token (symbol ">")) 4
     (= token (symbol ">=")) 4
+
     (= token (symbol "+")) 5
     (= token (symbol "-")) 5
+    
     (= token (symbol "/")) 6
     (= token (symbol "*")) 6
+
+
+    (= token (symbol "^")) 7
+
+    ;; (= token (symbol "-u")) 8
     (= token (symbol "-u")) 7
-    (= token (symbol "^")) 8
-    (= token (symbol "LEN")) 9
-    (= token (symbol "INT")) 9
-    (= token (symbol "ATN")) 9
-    (= token (symbol "SIN")) 9
-    (= token (symbol "ASC")) 9
-    (= token (symbol "CHR$")) 9
-    (= token (symbol "STR$")) 9
+
     (= token (symbol "MID$")) 9
     (= token (symbol "MID3$")) 9
-    :else 10
+
+    (number? token) 10
+    (string? token) 10
+
+    (= token (symbol "(")) nil
+    (= token (symbol ")")) nil
+
+    ;; (= token (symbol "LEN")) 9
+    ;; (= token (symbol "INT")) 9
+    ;; (= token (symbol "ATN")) 9
+    ;; (= token (symbol "SIN")) 9
+    ;; (= token (symbol "ASC")) 9
+    ;; (= token (symbol "CHR$")) 9
+    ;; (= token (symbol "STR$")) 9
+    :else 11
   )
 )
 
