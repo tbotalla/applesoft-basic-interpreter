@@ -126,6 +126,9 @@
    (def n (list '(PRINT 1) (list 'NEXT 'A (symbol ",") 'B)))
    (is (= '((PRINT 1) (NEXT A) (NEXT B)) (expandir-nexts n)))
    (is (= '((PRINT 1) (NEXT A) (NEXT B) (NEXT C) (PRINT 10) (NEXT D) (NEXT E)) (expandir-nexts '((PRINT 1) (NEXT A , B , C) (PRINT 10) (NEXT D,E)))))
+
+   (is (= '((PRINT 1) (NEXT)) (expandir-nexts '((PRINT 1) (NEXT))))) ; Caso NEXT sin params no lo elimina
+   (is (nil? (expandir-nexts nil))) ; Caso en que recibe nil devuelve nil
 )
 
 ; user=> (dar-error 16 [:ejecucion-inmediata 4])

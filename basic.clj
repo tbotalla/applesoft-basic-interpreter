@@ -51,6 +51,8 @@
 (declare eliminar-cero-decimal)           ; IMPLEMENTAR x
 (declare eliminar-cero-entero)            ; IMPLEMENTAR x
 
+(defn spy [x] (prn x) x)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; driver-loop: el REPL del interprete de Applesoft BASIC
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1011,7 +1013,7 @@
 
       (if 
         (= 1 (count s)) ; Un NEXT sin params se devuelve tal cual
-        s
+        (list s)
         (map #(list 'NEXT %) (remove #(= (symbol ",") %) (drop-while #(= 'NEXT %) s) ))
       )
       s
