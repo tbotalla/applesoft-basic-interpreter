@@ -52,6 +52,7 @@
 (declare eliminar-cero-entero)            ; IMPLEMENTAR x
 
 (defn spy [x] (prn x) x)
+(defn spy2 [msg x] (prn (pr-str msg x)) x)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; driver-loop: el REPL del interprete de Applesoft BASIC
@@ -364,6 +365,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn calcular-expresion [expr amb]
   ;; (prn (pr-str "calcular-expresion: expr=" expr " amb=" amb)) ;@tbotalla
+  ;; (spy2 "calcular-expresion respuesta=" (calcular-rpn (spy  (shunting-yard (spy  (desambiguar (spy  (preprocesar-expresion expr amb)  ) ) )  ) )  (amb 1))  )
+  ;; (spy2 "calcular-expresion respuesta="  (calcular-rpn (shunting-yard (desambiguar (preprocesar-expresion expr amb))) (amb 1))  )
   (calcular-rpn (shunting-yard (desambiguar (preprocesar-expresion expr amb))) (amb 1))
 )
 
@@ -442,6 +445,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn calcular-rpn [tokens nro-linea]
   (try
+    ;; (spy2 "resultado calcular-rpn=" 
     (let [resu-redu
          (reduce
            (fn [pila token]
@@ -458,7 +462,8 @@
            [] tokens)]
            (if (> (count resu-redu) 1)
                (dar-error 16 nro-linea)  ; Syntax error
-               (first resu-redu)))
+               (first resu-redu)))  
+    ;; )
     (catch NumberFormatException e 0)
     (catch ClassCastException e (dar-error 163 nro-linea)) ; Type mismatch error
     (catch UnsupportedOperationException e (dar-error 163 nro-linea)) ; Type mismatch error
@@ -534,6 +539,7 @@
 ; actualizado
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn evaluar [sentencia amb]
+  ;; (prn (pr-str "evaluar: sentencia=" sentencia " amb=" amb))
   (if (or (contains? (set sentencia) nil) (and (palabra-reservada? (first sentencia)) (= (second sentencia) '=)))
       (do (dar-error 16 (amb 1)) [nil amb])  ; Syntax error  
       (case (first sentencia)
@@ -561,6 +567,7 @@
               (= (count (next sentencia)) 1) (ejecutar-programa (assoc amb 1 [(fnext sentencia) (contar-sentencias (fnext sentencia) amb)]))  ; hay solo un argumento
               :else (do (dar-error 16 (amb 1)) [nil amb]))  ; Syntax error
         GOTO (let [num-linea (if (some? (second sentencia)) (second sentencia) 0)]
+        ;; GOTO (let [num-linea (spy2 "evaluar(GOTO):"  (if (some? (second sentencia)) (second sentencia) 0)  )]
                   (if (not (contains? (into (hash-set) (map first (amb 0))) num-linea))
                       (do (dar-error 90 (amb 1)) [nil amb])  ; Undef'd statement error
                       (let [nuevo-amb (assoc amb 1 [num-linea (contar-sentencias num-linea amb)])]
@@ -577,6 +584,7 @@
                                                                   (next resto-if))
                                    :else (do (dar-error 16 (amb 1)) nil)),  ; Syntax error
                  resu (calcular-expresion condicion-de-if amb)]
+                ;;  resu (spy2 "evaluar(IF): resu=" (calcular-expresion condicion-de-if amb)  )  ]
                 (if (zero? resu)
                     [:omitir-restante amb]
                     (recur sentencia-de-if amb)))
@@ -692,16 +700,16 @@
                 (if (not= operando1 operando2) 1 0)
                 (if (not= (+ 0 operando1) (+ 0 operando2)) 1 0))
           < (if (and (number? operando1) (number? operando2))
-                (< operando1 operando2)
+                (if (< operando1 operando2) 1 0)
                 (dar-error 163 nro-linea))
           <= (if (and (number? operando1) (number? operando2))
-                (<= operando1 operando2)
+                (if (<= operando1 operando2) 1 0)
                 (dar-error 163 nro-linea))
           > (if (and (number? operando1) (number? operando2))
-                (> operando1 operando2)
+                (if (> operando1 operando2) 1 0)
                 (dar-error 163 nro-linea))
           >= (if (and (number? operando1) (number? operando2))
-                (>= operando1 operando2)
+                (if (>= operando1 operando2) 1 0)
                 (dar-error 163 nro-linea))
         ))
     )
@@ -757,39 +765,44 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def palabras_reservadas 
   #{
-    "INPUT"
-    "PRINT"
+    "INPUT" ;
+    "PRINT" ;
     ;; "?" ; TODO: verificar
-    "DATA"
-    "READ"
-    "REM"
-    "RESTORE"
-    "CLEAR"
-    "LET"
-    "LIST"
-    "NEW"
-    "RUN"
-    "END"
-    "FOR"
-    "TO"
-    "NEXT"
-    "STEP"
-    "GOSUB"
-    "RETURN"
-    "GOTO"
-    "IF"
-    "THEN"
-    "ON"
+    "DATA" ;
+    "READ" ;
+    "REM" ;
+    "RESTORE" ;
+    "CLEAR" ;
+    "LET" ;
+    "LIST" ;
+    "NEW" ;
+    "RUN" ;
+    "END" ;
+    "FOR" ;
+    "TO" ;
+    "NEXT" ;
+    "STEP" ;
+    "GOSUB" ;
+    "RETURN" ;
+    "GOTO" ;
+    "IF" ;
+    "THEN" ;
+    "ON" ;
     ;; "ENV" Son del interprete
     ;; "EXIT" Son del interprete
-    "ATN"
-    "INT"
-    "SIN"
-    "LEN"
-    "MID$"
-    "ASC"
-    "CHR$"
-    "STR$"
+    "ATN" ;
+    "INT" ;
+    "SIN" ;
+    "LEN" ;
+    "MID$" ;
+    "MID3$" ;
+    "ASC" ;
+    "CHR$" ;
+    "STR$" ;
+    "OR" ;
+    "AND" ;
+    "LOAD" ;
+    "SAVE" ;
   }
 )
 
@@ -799,19 +812,20 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def operadores 
   #{
-    "+"
-    "-"
-    "*"
-    "/"
-    "^"
-    "="
-    "<>"
-    "<"
-    "<="
-    ">"
-    ">="
-    "AND"
-    "OR"
+    "+" ;
+    "-" ;
+    "*" ;
+    "/" ;
+    "^" ;
+    "=" ;
+    "<>" ;
+    "<" ;
+    "<=" ;
+    ">" ;
+    ">=" ;
+    "AND" ;
+    "OR" ;
+    "?"
   }
 )
 
@@ -918,9 +932,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn es-invalido? [simbolo]
   (if 
-    (contains? simbolos_invalidos (clojure.string/upper-case simbolo))
+    (nil? simbolo)
     nil
-    simbolo
+    (if 
+      (contains? simbolos_invalidos (clojure.string/upper-case simbolo))
+      nil
+      simbolo
+    )
   )
 )
 
@@ -945,6 +963,7 @@
 ; (IF X nil * Y < 12 THEN LET nil X = 0)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn anular-invalidos [sentencia]
+  ;; (prn (pr-str "anular-invalidos: sentencia=" sentencia))
   (map es-invalido? sentencia) ; Solo borra los caracteres no aceptados
 )
 
@@ -1132,6 +1151,7 @@
 (defn nombre-variable-valido? [x]
   ;; TODO: no llamar a upper-case todo el tiempo
   (and
+    (not= true (nil? x))
     (primer-caracter-alfabetico? (clojure.string/upper-case x))
     (longitud-variable-valida? (clojure.string/upper-case x))
     (= false (palabra-reservada? x))
@@ -1482,10 +1502,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn valor-por-defecto-de-variable-segun-tipo [var]
   (cond
+    (string? var) var
     (variable-float? var) 0
     (variable-integer? var) 0
     (variable-string? var) ""
-    :else ""
+    :else var
   )
 )
 
@@ -1509,22 +1530,28 @@
 )
 
 (defn procesar-elemento-expresion [amb x]
+  ;; (prn (pr-str "procesar-elemento-expresion: amb=" amb " x=" x))
+  ;; (spy2 "procesar-elemento-expresion"
   (let
     [
-      resultado (if
-                  (nombre-variable-valido? x)
-                  (buscar-valor-variable (amb 6) x)
-                  x
+      resultado (cond
+                  (operador? x) x
+                  (palabra-reservada? x) x
+                  (nombre-variable-valido? x) (buscar-valor-variable (amb 6) x)
+                  :else x
                 )
     ]
     (if (= '. resultado)
       0
       resultado
     )
-  )
+  ) 
+  ;; )
 )
 
+;; (preprocesar-expresion '(X + . / Y% * Z) ['((10 (PRINT X))) [10 1] [] [] [] 0 '{X 5 Y% 2}])
 (defn preprocesar-expresion [expr amb]
+  ;; (prn (pr-str "preprocesar-expresion: expr=" expr " amb=" amb))
   (map #(procesar-elemento-expresion amb %) expr)
 )
 
@@ -1620,10 +1647,13 @@
 )
 
 (defn desambiguar [expr]
+  ;; (prn (pr-str "desambiguar: expr=" expr))
+  ;; (spy2 "respuesta desambiguar: " 
   (filter 
     #(not (nil? %)) ; los nil son los "+" unarios, por eso los filtra
     (desambiguar-elemento 0 (vec expr))
-  )
+  ) 
+  ;; )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1712,36 +1742,47 @@
     "/"
     "+"
     "-"
-    "^"
-    "OR"
-    "AND"
-    "="
-    "<>"
-    "<"
-    "<="
-    ">"
-    ">="
-    "MID$"
+    "^" ;
+    "OR" ;
+    "AND" ;
+    ;; "="
+    ;; "<>"
+    ;; "<"
+    ;; "<="
+    ;; ">"
+    ;; ">="
+    "MID$" ;
   }
 )
 
 (def funciones_aridad_1
   #{
-    "ATN"
-    "INT"
-    "SIN"
-    "LEN"
-    "ASC"
-    "CHR$"
-    "STR$"
+    "ATN" ;
+    "INT" ;
+    "SIN" ;
+    "LEN" ;
+    "ASC" ;
+    "CHR$" ;
+    "STR$" ;
+    "-u"
+    "LOAD"
+    "SAVE"
+    "PRINT"
+    "REM"
+    "LET"
+    "GOSUB"
+    "GOTO"
+    "IF"
+    "ON"
   }
 )
 
 (defn aridad [token]
   (cond
     (contains? funciones_aridad_3 (str token)) 3
-    (contains? funciones_aridad_2 (str token)) 2
+    (or (contains? funciones_aridad_2 (str token)) (operador? token)) 2
     (contains? funciones_aridad_1 (str token)) 1
+    (or (string? token) (number? token)) 0
     :else 0
   )
 )
@@ -1775,6 +1816,8 @@
 )
 
 (defn eliminar-cero-decimal [n]
+  ;; (prn (pr-str "eliminar-cero-decimal: n=" n))
+  ;; (spy2 "respuesta eliminar-cero-decimal: "  
   (cond
     (number? n)
       (if (es-entero? n)
@@ -1782,7 +1825,8 @@
         (eliminar-ceros-al-final n)
       )
     :else n
-  )
+  )  
+  ;; )
 )
 
 
@@ -1819,12 +1863,19 @@
 )
 
 (defn eliminar-cero-entero [n]
+  ;; (prn (pr-str "eliminar-cero-entero: n=" n))
+  ;; (spy2 "eliminar-cero-entero respuesta: "
   (cond
+    (= false n) 0
+    (= true n) 1
     (nil? n) nil
+    (string? n) n
     (symbol? n) (str n)
     (es-entero? n) (str n)
+    ;; (string? n) n
     :else (eliminar-cero-inicial-en-decimal n)
   )
+  ;; )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

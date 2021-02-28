@@ -294,6 +294,10 @@
 (deftest preprocesar-expresion?
    (is (= '("HOLA" + " MUNDO" + "") (preprocesar-expresion '(X$ + " MUNDO" + Z$) ['((10 (PRINT X))) [10 1] [] [] [] 0 '{X$ "HOLA"}])))
    (is (= '(5 + 0 / 2 * 0) (preprocesar-expresion '(X + . / Y% * Z) ['((10 (PRINT X))) [10 1] [] [] [] 0 '{X 5 Y% 2}])))
+
+   ; Con vars de ambiente vacio devuelve la expresion
+
+   (is (= '(1 + 2 / 2 * 0) (preprocesar-expresion '(1 + 2 / 2 * Z) ['((10 (PRINT X))) [10 1] [] [] [] 0 '{}])))
 )
 
 ; user=> (desambiguar (list '- 2 '* (symbol "(") '- 3 '+ 5 '- (symbol "(") '+ 2 '/ 7 (symbol ")") (symbol ")")))
@@ -394,6 +398,9 @@
    (is (= "-1.5" (eliminar-cero-entero -1.5)))
    (is (= ".5" (eliminar-cero-entero 0.5)))
    (is (= "-.5" (eliminar-cero-entero -0.5)))
+
+   (is (= 0 (eliminar-cero-entero false)))
+   (is (= 1 (eliminar-cero-entero true)))
 )
 
 (run-tests)
