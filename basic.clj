@@ -444,6 +444,7 @@
 ; linea indicada
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn calcular-rpn [tokens nro-linea]
+  ;; (prn "calcular-rpn: tokens=" tokens " nro-linea=" nro-linea)
   (try
     ;; (spy2 "resultado calcular-rpn=" 
     (let [resu-redu
@@ -681,7 +682,7 @@
           + (if (and (string? operando1) (string? operando2))
                 (str operando1 operando2)
                 (+ operando1 operando2))
-          / (if (= operando2 0) (dar-error 133 nro-linea) (/ operando1 operando2))  ; Division by zero error
+          / (if (= operando2 0) (dar-error 133 nro-linea) (float (/ operando1 operando2)))  ; Division by zero error
           AND (let [op1 (+ 0 operando1), op2 (+ 0 operando2)] (if (and (not= op1 0) (not= op2 0)) 1 0))
           MID$ (if (< operando2 1)
                    (dar-error 53 nro-linea)  ; Illegal quantity error
@@ -692,7 +693,7 @@
           - (if (and (number? operando1) (number? operando2))
                 (- operando1 operando2)
                 (dar-error 163 nro-linea))
-          \^ (if (and (number? operando1) (number? operando2)) ; TODO: revisar esto
+          (symbol "^") (if (and (number? operando1) (number? operando2)) ; TODO: revisar esto
                 (Math/pow operando1 operando2)
                 (dar-error 163 nro-linea))
           OR (let [op1 (+ 0 operando1), op2 (+ 0 operando2)] (if (or (not= op1 0) (not= op2 0)) 1 0))
@@ -812,20 +813,20 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def operadores 
   #{
-    "+" ;
-    "-" ;
-    "*" ;
-    "/" ;
-    "^" ;
-    "=" ;
-    "<>" ;
-    "<" ;
-    "<=" ;
-    ">" ;
-    ">=" ;
-    "AND" ;
-    "OR" ;
-    "?"
+    '+ ;
+    '- ;
+    '* ;
+    '/ ;
+    (symbol "^") ;
+    '= ;
+    '<> ;
+    '< ;
+    '<= ;
+    '> ;
+    '>= ;
+    'AND ;
+    'OR ;
+    '?
   }
 )
 
@@ -856,8 +857,10 @@
 ; false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn palabra-reservada? [x]
+  ;; (prn (pr-str "palabra-reservada: x=" x))
+  ;; (spy2 "respuesta palabra-reservada? :" 
   (contains? palabras_reservadas (clojure.string/upper-case x))
-
+  ;; )
   ;; (case x
   ;;   ;; LOAD true ; Son de Apple DOS 3.3
   ;;   ;; SAVE true ; Son de Apple DOS 3.3
@@ -922,7 +925,11 @@
 ; false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn operador? [x]
-  (contains? operadores (clojure.string/upper-case x))
+  ;; (prn "operador? : x=" x)
+  ;; (spy2 "resultado operador?: "
+  ;; (contains? operadores (clojure.string/upper-case x))
+  (contains? operadores x)
+  ;; )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1535,6 +1542,7 @@
   (let
     [
       resultado (cond
+                  (nil? x) x
                   (operador? x) x
                   (palabra-reservada? x) x
                   (nombre-variable-valido? x) (buscar-valor-variable (amb 6) x)
@@ -1732,59 +1740,64 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def funciones_aridad_3
   #{
-    "MID3$"
+    'MID3$
   }
 )
 
 (def funciones_aridad_2
   #{
-    "*"
-    "/"
-    "+"
-    "-"
-    "^" ;
-    "OR" ;
-    "AND" ;
-    ;; "="
-    ;; "<>"
-    ;; "<"
-    ;; "<="
-    ;; ">"
-    ;; ">="
-    "MID$" ;
+    '*
+    '/
+    '+
+    '-
+    (symbol "^") ;
+    'OR ;
+    'AND ;
+    ;; '=
+    ;; '<>
+    ;; '<
+    ;; '<=
+    ;; '>
+    ;; '>=
+    'MID$ ;
   }
 )
 
 (def funciones_aridad_1
   #{
-    "ATN" ;
-    "INT" ;
-    "SIN" ;
-    "LEN" ;
-    "ASC" ;
-    "CHR$" ;
-    "STR$" ;
-    "-u"
-    "LOAD"
-    "SAVE"
-    "PRINT"
-    "REM"
-    "LET"
-    "GOSUB"
-    "GOTO"
-    "IF"
-    "ON"
+    'ATN ;
+    'INT ;
+    'SIN ;
+    'LEN ;
+    'ASC ;
+    'CHR$ ;
+    'STR$ ;
+    '-u
+    'LOAD
+    'SAVE
+    'PRINT
+    'REM
+    'LET
+    'GOSUB
+    'GOTO
+    'IF
+    'ON
   }
 )
 
 (defn aridad [token]
+  ;; (spy2 "aridad respuesta: "
   (cond
-    (contains? funciones_aridad_3 (str token)) 3
-    (or (contains? funciones_aridad_2 (str token)) (operador? token)) 2
-    (contains? funciones_aridad_1 (str token)) 1
+    ;; (contains? funciones_aridad_3 (str token)) 3
+    (contains? funciones_aridad_3 token) 3
+    ;; (or (contains? funciones_aridad_2 (str token)) (operador? token)) 2
+    (or (contains? funciones_aridad_2 token) (operador? token)) 2
+    ;; (contains? funciones_aridad_1 (str token)) 1
+    (contains? funciones_aridad_1 token) 1
     (or (string? token) (number? token)) 0
     :else 0
   )
+  ;; )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

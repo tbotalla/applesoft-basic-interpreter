@@ -83,7 +83,7 @@
    (is (= true (operador? '-)))
    (is (= true (operador? '*)))
    (is (= true (operador? '/)))
-   (is (= true (operador? '\^))) 
+   (is (= true (operador? (symbol "^")))) 
    (is (= true (operador? '=)))
    (is (= true (operador? '<>)))
    (is (= true (operador? '<)))
