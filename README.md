@@ -3,16 +3,17 @@ Applesoft BASIC interpreter in Clojure
 
 ### Ejecutar interprete Clojure
 rlwrap java -jar clojure-1.8.0.jar
-
 ### Uso del interprete en Clojure
+```
 (load-file "basic.clj")
-(driver-loop)
-load fibo.bas
-list
-env
-run
-exit
-new -> limpia el ambiente
+(driver-loop) # Inicia el interprete de Applesoft BASIC
+LOAD "BASIC/FIBO.BAS" # Carga de programa a ejecutar
+RUN # Ejecucion de programa
+list # Muestra las lineas del programa cargado
+env # Muestra el ambiente
+exit # Salir del interprete
+new # Limpia el ambiente
+```
 
 ### Uso de spy.clj (debugging)
 (load-file "spy.clj")
