@@ -1,4 +1,8 @@
-; Tomas Enrique Botalla - Padron 96356
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Trabajo Práctico - 75.14 Lenguajes Formales - FIUBA
+;; Tomas Enrique Botalla - Padron 96356
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (require '[clojure.test :refer [is deftest run-tests]])
 
 (load-file "basic.clj")
@@ -144,6 +148,7 @@
 ;
 ; ?ERROR DISK FULL IN 100nil
 (deftest test-dar-error?
+   ; Estos casos se probaron en forma manual
    ; TODO: ver como armar estos tests para hacer un contains de lo que se printea. Probar siguiente:
    ; (let [printed (with-out-str (dar-error 16 [:ejecucion-inmediata 4]))] (prn (str "PRINTED=" printed)))
 

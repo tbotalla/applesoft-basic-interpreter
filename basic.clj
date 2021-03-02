@@ -1,4 +1,9 @@
-; Tomas Enrique Botalla - Padron 96356
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Trabajo Práctico - 75.14 Lenguajes Formales - FIUBA
+;; Tomas Enrique Botalla - Padron 96356
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 ; https://porkrind.org/a2
 ; https://www.calormen.com/jsbasic
 ; https://www.scullinsteel.com/apple2/
@@ -127,15 +132,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn evaluar-linea
   ([sentencias amb]
-    ;; (prn (pr-str "evaluar-linea diadico: sentencias=" sentencias " amb=" amb)) ; 
     (let [sentencias-con-nexts-expandidos (expandir-nexts sentencias)]
          (evaluar-linea sentencias-con-nexts-expandidos sentencias-con-nexts-expandidos amb)))
   ([linea sentencias amb]
-    ;; (prn (pr-str "evaluar-linea triadico: sentencias=" sentencias " amb=" amb " linea=" linea)) ; @TBOTALLA BORRAR
     (if (empty? sentencias)
         [:sin-errores amb]
         (let [sentencia (anular-invalidos (first sentencias)), par-resul (evaluar sentencia amb)]
-            ;;  (prn (pr-str "evaluar-linea triadico: sentencia=" sentencia " par-resul=" par-resul)) ; @tbotalla borrar
              (if (or (nil? (first par-resul)) (contains? #{:omitir-restante, :error-parcial, :for-inconcluso} (first par-resul)))
                  (if (and (= (first (amb 1)) :ejecucion-inmediata) (= (first par-resul) :for-inconcluso))
                      (recur linea (take-last (second (second (second par-resul))) linea) (second par-resul))
@@ -196,15 +198,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn leer-data
   ([param-de-read amb]
-    ;; (spy2 "leer-data diadico respuesta="
     (cond
       (= (first (amb 1)) :ejecucion-inmediata) (do (dar-error 15 (amb 1)) [nil amb])  ; Not direct command
       (empty? param-de-read) (do (dar-error 16 (amb 1)) [nil amb])  ; Syntax error
       :else (leer-data param-de-read (drop (amb 5) (amb 4)) amb))
-    ;; )
   )
   ([variables entradas amb]
-    ;; (prn (pr-str "leer-data triadico: variables=" variables " entradas=" entradas " amb=" amb)) 
     (cond
       (empty? variables) [:sin-errores amb]
       (empty? entradas) (do (dar-error 42 (amb 1)) [:error-parcial amb])  ; Out of data error
@@ -266,7 +265,6 @@
 ; de la variable de control
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn retornar-al-for [amb var-next]
-  ;; (prn (pr-str "retornar-al-for: amb=" amb " var-next=" var-next))
   (if (empty? (amb 3))
       (do (dar-error 0 (amb 1)) [nil amb])  ; Next without for error
       (let [datos-for (peek (amb 3)),
@@ -370,9 +368,6 @@
 ; 7
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn calcular-expresion [expr amb]
-  ;; (prn (pr-str "calcular-expresion: expr=" expr " amb=" amb)) ;@tbotalla
-  ;; (spy2 "calcular-expresion respuesta=" (calcular-rpn (spy  (shunting-yard (spy  (desambiguar (spy  (preprocesar-expresion expr amb)  ) ) )  ) )  (amb 1))  )
-  ;; (spy2 "calcular-expresion respuesta="  (calcular-rpn (shunting-yard (desambiguar (preprocesar-expresion expr amb))) (amb 1))  )
   (calcular-rpn (shunting-yard (desambiguar (preprocesar-expresion expr amb))) (amb 1))
 )
 
@@ -450,9 +445,7 @@
 ; linea indicada
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn calcular-rpn [tokens nro-linea]
-  ;; (prn "calcular-rpn: tokens=" tokens " nro-linea=" nro-linea)
   (try
-    ;; (spy2 "resultado calcular-rpn=" 
     (let [resu-redu
          (reduce
            (fn [pila token]
@@ -470,7 +463,6 @@
            (if (> (count resu-redu) 1)
                (dar-error 16 nro-linea)  ; Syntax error
                (first resu-redu)))  
-    ;; )
     (catch NumberFormatException e 0)
     (catch ClassCastException e (dar-error 163 nro-linea)) ; Type mismatch error
     (catch UnsupportedOperationException e (dar-error 163 nro-linea)) ; Type mismatch error
@@ -488,7 +480,6 @@
 (defn imprimir
   ([v]
      (let [expresiones (v 0), amb (v 1)]
-          ;; (prn (pr-str "imprimir monadico: expresiones=" expresiones " amb=" amb)) ;@tbotalla
           (cond
             (empty? expresiones) (do (prn) (flush) :sin-errores)
             (and (empty? (next expresiones)) (= (first expresiones) (list (symbol ";")))) (do (pr) (flush) :sin-errores)
@@ -496,13 +487,10 @@
             (= (first expresiones) (list (symbol ";"))) (do (pr) (flush) (recur [(next expresiones) amb]))
             (= (first expresiones) (list (symbol ",t"))) (do (printf "\t\t") (flush) (recur [(next expresiones) amb]))
             :else (let [resu (eliminar-cero-entero (calcular-expresion (first expresiones) amb))]
-                        ;; (prn (pr-str "imprimir monadico: resultado calcular-expresion=" (calcular-expresion (first expresiones) amb))) ;@tbotalla
-                        ;; (prn (pr-str "imprimir monadico: resu=" resu)) ;@tbotalla
                         (if (nil? resu)
                             resu
                             (do (print resu) (flush) (recur [(next expresiones) amb])))))))
   ([lista-expr amb]
-    ;; (prn (pr-str "imprimir diadico: lista-expr=" lista-expr " amb=" amb)) ;@tbotalla
     (let [nueva (cons (conj [] (first lista-expr)) (rest lista-expr)),
           variable? #(or (variable-integer? %) (variable-float? %) (variable-string? %)),
           funcion? #(and (> (aridad %) 0) (not (operador? %))),		  
@@ -511,7 +499,6 @@
                          (conj (conj %1 (symbol ";")) %2) (conj %1 %2)) nueva),
           ex (partition-by #(= % (symbol ",t")) (desambiguar-comas interc)),
           expresiones (apply concat (map #(partition-by (fn [x] (= x (symbol ";"))) %) ex))]
-          ;; (prn (pr-str "imprimir diadico: nueva=" nueva " variable?=" variable? " funcion?=" funcion? " interc=" interc " ex=" ex " expresiones=" expresiones)) ;@tbotalla
          (imprimir [expresiones amb])))
 )
 
@@ -546,7 +533,6 @@
 ; actualizado
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn evaluar [sentencia amb]
-  ;; (prn (pr-str "evaluar: sentencia=" sentencia " amb=" amb))
   (if (or (contains? (set sentencia) nil) (and (palabra-reservada? (first sentencia)) (= (second sentencia) '=)))
       (do (dar-error 16 (amb 1)) [nil amb])  ; Syntax error  
       (case (first sentencia)
@@ -574,7 +560,6 @@
               (= (count (next sentencia)) 1) (ejecutar-programa (assoc amb 1 [(fnext sentencia) (contar-sentencias (fnext sentencia) amb)]))  ; hay solo un argumento
               :else (do (dar-error 16 (amb 1)) [nil amb]))  ; Syntax error
         GOTO (let [num-linea (if (some? (second sentencia)) (second sentencia) 0)]
-        ;; GOTO (let [num-linea (spy2 "evaluar(GOTO):"  (if (some? (second sentencia)) (second sentencia) 0)  )]
                   (if (not (contains? (into (hash-set) (map first (amb 0))) num-linea))
                       (do (dar-error 90 (amb 1)) [nil amb])  ; Undef'd statement error
                       (let [nuevo-amb (assoc amb 1 [num-linea (contar-sentencias num-linea amb)])]
@@ -591,7 +576,6 @@
                                                                   (next resto-if))
                                    :else (do (dar-error 16 (amb 1)) nil)),  ; Syntax error
                  resu (calcular-expresion condicion-de-if amb)]
-                ;;  resu (spy2 "evaluar(IF): resu=" (calcular-expresion condicion-de-if amb)  )  ]
                 (if (zero? resu)
                     [:omitir-restante amb]
                     (recur sentencia-de-if amb)))
@@ -628,16 +612,9 @@
         LIST (mostrar-listado (amb 0)) ; Muestra las sentencias del programa, las cuales estan en la 1° posicion del ambiente
         LET (evaluar (next sentencia) amb) ; Para el LET simplemente excluye la palabra y evalua la asignacion
         END [nil amb] ; Mantiene el ambiente e ignora la sentencia
-        ;; END [:sin-errores amb] ; Mantiene el ambiente e ignora la sentencia
-        ;; READ (prn "evaluar(READ):") ; leer-data recibe los valores separados por "," despues del DATA
-        ;; READ (spy2 "evaluar(READ): respuesta=" (leer-data (spy  (next sentencia)  ) amb) ) ; leer-data recibe los valores separados por "," despues del DATA
         READ (leer-data (next sentencia) amb) ; leer-data recibe los valores separados por "," despues del DATA
-        ;; READ (leer-data (rest sentencia) amb)
-        ;; RESTORE (assoc amb 5 0) ; Retorna el puntero del DATA (data-ptr === amb[5]) al principio
         RESTORE [:sin-errores (assoc amb 5 0)]
         CLEAR (assoc amb 6 {}); Borra por completo el mapa de variables (var-mem === amb[6])
-        ;; DATA (prn (pr-str "evaluar(DATA) amb=" amb " sentencia=" sentencia)) ; NUEVO
-        ;; DATA [:sin-errores amb] ; NUEVO
         (if (= (second sentencia) '=)
             (let [resu (ejecutar-asignacion sentencia amb)]
                  (if (nil? resu)
@@ -648,7 +625,7 @@
   )  ; Syntax error
 
 ; Faltantes identificadas:
-; LIST (hecha), LET (hecha), END (hecha), READ (hecha), RESTORE (hecha), CLEAR (hecha, no se usa en los ejemplos), DATA, ? (ver si hay que incluirlo al ?)
+; LIST (hecha), LET (hecha), END (hecha), READ (hecha), RESTORE (hecha), CLEAR (hecha, no se usa en los ejemplos), DATA
 ; [(prog-mem)  [prog-ptrs]  [gosub-return-stack]  [for-next-stack]  [data-mem]  data-ptr  {var-mem}]
 )
 
@@ -704,9 +681,6 @@
           * (if (and (number? operando1) (number? operando2))
                 (* operando1 operando2)
                 (dar-error 163 nro-linea))
-          ;; * (if (and (number? operando1) (number? operando2))
-          ;;       (* operando1 operando2)
-          ;;       (dar-error 163 nro-linea))
           - (if (and (number? operando1) (number? operando2))
                 (- operando1 operando2)
                 (dar-error 163 nro-linea))
@@ -785,7 +759,7 @@
   #{
     "INPUT" ;
     "PRINT" ;
-    ;; "?" ; TODO: verificar
+    ;; "?" ;
     "DATA" ;
     "READ" ;
     "REM" ;
@@ -874,61 +848,7 @@
 ; false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn palabra-reservada? [x]
-  ;; (prn (pr-str "palabra-reservada: x=" x))
-  ;; (spy2 "respuesta palabra-reservada? :" 
   (contains? palabras_reservadas (clojure.string/upper-case x))
-  ;; )
-  ;; (case x
-  ;;   ;; LOAD true ; Son de Apple DOS 3.3
-  ;;   ;; SAVE true ; Son de Apple DOS 3.3
-  ;;   INPUT true ;
-  ;;   PRINT true ;
-  ;;   ? true ;
-  ;;   DATA true
-  ;;   READ true ;
-  ;;   REM true ;
-  ;;   RESTORE true ;
-  ;;   CLEAR true ;
-  ;;   LET true ;
-  ;;   LIST true ;
-  ;;   NEW true ;
-  ;;   RUN true ;
-  ;;   END true ;
-  ;;   FOR true ;
-  ;;   TO true ;
-  ;;   NEXT true ;
-  ;;   STEP true ;
-  ;;   GOSUB true ;
-  ;;   RETURN true ;
-  ;;   GOTO true ;
-  ;;   IF true ;
-  ;;   THEN true ;
-  ;;   ON true ;
-  ;;   ;; ENV true ; Son del interprete
-  ;;   ;; EXIT true ; Son del interprete
-  ;;   ATN true
-  ;;   INT true
-  ;;   SIN true
-  ;;   LEN true
-  ;;   MID$ true
-  ;;   ASC true
-  ;;   CHR$ true
-  ;;   STR$ true
-  ;;   ;; + true
-  ;;   ;; - true
-  ;;   ;; * true
-  ;;   ;; / true
-  ;;   ;; ; ^ true
-  ;;   ;; = true
-  ;;   ;; <> true
-  ;;   ;; < true
-  ;;   ;; <= true
-  ;;   ;; > true
-  ;;   ;; >= true
-  ;;   ;; AND true
-  ;;   ;; OR true
-  ;;   false
-  ;; )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -942,17 +862,7 @@
 ; false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn operador? [x]
-  ;; (prn "operador? : x=" x)
-  ;; (spy2 "resultado operador?: "
-  ;; (contains? operadores (clojure.string/upper-case x))
-  ;; (if 
-  ;;   (nil? x)
-  ;;   false
     (contains? operadores x)
-  ;; )
-
-  ;; (contains? operadores x)
-  ;; )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -961,7 +871,6 @@
 ; en otro caso devuelve el parametro recibido
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn es-invalido? [simbolo]
-  ;; (prn (pr-str "es-invalido?: simbolo=" simbolo))
   (if 
     (nil? simbolo)
     nil
@@ -994,7 +903,6 @@
 ; (IF X nil * Y < 12 THEN LET nil X = 0)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn anular-invalidos [sentencia]
-  ;; (prn (pr-str "anular-invalidos: sentencia=" sentencia))
   (map es-invalido? sentencia) ; Solo borra los caracteres no aceptados
 )
 
@@ -1011,12 +919,6 @@
 ; [((10 (PRINT X)) (15 (X = X - 1)) (20 (X = 100))) [:ejecucion-inmediata 0] [] [] [] 0 {}]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn cargar-linea [linea amb]
-  ;; (prn (pr-str "carga-linea: linea=" linea " amb=" amb))
-  ; (println "Num linea:")
-  ; (prn (first linea))
-  ; (println "Ambiente: ")
-  ; (println amb)
-
   ; Elimina en el ambiente la linea que se esta cargando en caso de que exista, 
   ; convierte a vector para agregar al final, luego se reconvierte a lista
   ; y se ordena en base al primer elemento, es decir el numero de linea.
@@ -1047,8 +949,6 @@
 ; @tbotalla
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn comienza-con-next? [s]
-  ;; (prn (pr-str "comienza-con-next?: s=" s))
-  ;; (prn (pr-str "comienza-con-next?: s2=" (clojure.string/trim (str (first s)))))
   (= "NEXT" (clojure.string/upper-case (clojure.string/trim (str (first s)))))
 )
 
@@ -1058,11 +958,9 @@
 ; y devuelve ((NEXT A) (NEXT B) (NEXT C))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn expandir-next [s]
-  ;; (prn (pr-str "expandir-next: s=" s))
   (if (comienza-con-next? s)
       ; Por cada elemento despues del NEXT (elimina las comas), genera una
       ; lista como (NEXT <elemento>)
-
       (if 
         (= 1 (count s)) ; Un NEXT sin params se devuelve tal cual
         (list s)
@@ -1096,13 +994,11 @@
 (defn expandir-nexts [n]
   ; Tener en cuenta que se aplica a todas las sentencias, por lo tanto
   ; primero verificar si tiene un NEXT antes de expandirla
-  ;; (spy2 "expandir-nexts: respuesta="
   (if 
     (nil? n) 
     nil ; Mencionado en el Campus
     (reverse (expandir-elementos n '()))
   )
-  ;; )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1143,7 +1039,6 @@
 ;; y retorna true si ese caracter es alfabetico 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn primer-caracter-alfabetico? [x]
-  ;; (prn (pr-str "primer-caracter-alfabetico?: x=" x))
   (some? 
     (re-find #"[A-Z]" 
       (str 
@@ -1185,14 +1080,14 @@
 ;; caracteres, no contener palabras reservadas
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn nombre-variable-valido? [x]
-  ;; TODO: no llamar a upper-case todo el tiempo
-  ;; (prn (pr-str "nombre-variable-valido?: x=" x))
-  (and
-    (not= true (nil? x))
-    (primer-caracter-alfabetico? (clojure.string/upper-case x))
-    (longitud-variable-valida? (clojure.string/upper-case x))
-    (= false (palabra-reservada? x))
-    ;; (nombre-variable-no-contiene-palabra-reservada? (clojure.string/upper-case x))
+  (let 
+    [variable-mayus (clojure.string/upper-case x)]
+    (and
+      (not= true (nil? x))
+      (primer-caracter-alfabetico? variable-mayus)
+      (longitud-variable-valida? variable-mayus)
+      (= false (palabra-reservada? x))
+    )
   )
 )
 
@@ -1253,7 +1148,6 @@
 ; false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn variable-string? [x]
-  ;; (prn "variable-string?: x=" x)
   (if 
     (and 
       (nombre-variable-valido? x)
@@ -1321,16 +1215,12 @@
 (defn buscar-lineas-restantes
   ([amb] (buscar-lineas-restantes (amb 1) (amb 0)))
   ([act prg]
-    ;; (spy2 "buscar-lineas-restantes: respuesta="
-    ;; (prn (str "buscar-lineas-restantes: act=" act " prg=" prg))
     (let [
       nro-linea (first act) , 
       sentencias-restantes (second act) , ; Sentencias restantes de la linea actual: <nro-linea>
     ]
-      ;; (prn (pr-str "buscar-lineas-restantes: nro-linea=" nro-linea " sentencias-restantes=" sentencias-restantes))
       (if 
         (or 
-          ;; (prn "EN BUSCAR-LINEAS-RESTANTES") ; FIXME: borrar esto!
           (= 0 (count (filter #(= nro-linea (first %)) prg)))
           (= :ejecucion-inmediata nro-linea)
         )
@@ -1338,9 +1228,7 @@
           (let [
             linea-actual (first (filter #(= nro-linea (first %)) prg)) ,
             lineas-siguientes (filter #(< nro-linea (first %)) prg) ; Lineas siguientes a la linea actual: <nro-linea>
-          ]
-            ;; (prn (pr-str "buscar-lineas-restantes: linea-actual=" linea-actual " lineas-siguientes=" lineas-siguientes))
-            
+          ]            
             (concat 
               ; Sentencias de la linea actual. En estas si se expanden los NEXT, en las demas no.
               (list 
@@ -1358,7 +1246,6 @@
           )
       )
     )
-    ;; )
   )
 )
 
@@ -1379,7 +1266,6 @@
 )
 
 (defn continuar-linea [amb]
-  ; [(prog-mem)  [prog-ptrs]  [gosub-return-stack]  [for-next-stack]  [data-mem]  data-ptr  {var-mem}]
   (if
     (empty? (nth amb 2)) ; gosub-return-stack
     (do (dar-error 22 (nth amb 1)) (vector nil amb))
@@ -1401,7 +1287,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Funcionamiento del DATA: http://www.hoist-point.com/applesoft_basic_tutorial.htm#data_command_section
 (defn no-empieza-con-rem? [x]
-  ;; (prn (str "empieza-con-rem? : sentencia=" x))
   (if 
     (or 
       (nil? x)
@@ -1416,7 +1301,6 @@
 ; sentencias posteriores a una que empieze con 'REM
 ; Recibe algo de la forma: (10 (PRINT X) (REM ESTE NO) (DATA 30))
 (defn filtrar-sentencias-post-rem [linea]
-  ;; (prn (str "filtrar-sentencias-post-rem: linea=" linea " first linea=" (first linea)))
   (let 
     [nro-linea (first linea)]
     (cons nro-linea ; Recupera el nro de linea
@@ -1428,33 +1312,25 @@
 
 ; Recibe algo de la forma (DATA MUNDO , 10 , 20)
 (defn limpiar-datas [linea]
-  ;; (prn (str "limpiar-datas: linea=" linea))
-  ;; (prn (str "limpiar-datas: pop(linea)=" (pop linea)))
-  ;; (spy2 "limpiar-datas respuesta="
   (if 
     (not= 'DATA
       (first linea)
     )
     nil
-    ;; (pop linea) ; Elimina el DATA
-    ;; (spy2 "limpiar-datas: pop apply(linea)=" (pop (apply list linea)) ); Elimina el DATA
     (pop (apply list linea)); Elimina el DATA
   )
-  ;; )
 )
 
 ; Recibe algo de la forma: (100 (DATA MUNDO , 10 , 20))
 ; Devuelve (MUNDO 10 20)
 ; Tener en cuenta que pueden ser varias sentencias!
 (defn procesar-data [linea]
-  ;; (prn (str "procesar-data: linea=" linea))
   (let 
     [
       sentencias (rest linea)
     ]
     (map limpiar-datas sentencias)
   )
-
 )
 
 (defn convertir-a-string-si-no-es-numero [n]
@@ -1512,14 +1388,12 @@
 ; Si hay mas de uno, entonces calcula la expresion y luego
 ; actualiza el ambiente
 (defn ejecutar-asignacion [sentencia amb]
-  ;; (prn (pr-str "sentencia=" sentencia " amb=" amb))
   (let
     [
       var (first sentencia)
       vars-ambiente (amb 6)
       cant-variables-sentencia (cant-variables sentencia)
     ]
-    ;; (spy2 "ejecutar-asignacion: respuesta="
     (cond
       (>= cant-variables-sentencia 1)
         (assoc 
@@ -1530,7 +1404,6 @@
         )        
       :else amb
     )
-    ;; )
   )
 )
 
@@ -1573,8 +1446,6 @@
 )
 
 (defn procesar-elemento-expresion [amb x]
-  ;; (prn (pr-str "procesar-elemento-expresion: amb=" amb " x=" x))
-  ;; (spy2 "procesar-elemento-expresion"
   (let
     [
       resultado (cond
@@ -1590,12 +1461,10 @@
       resultado
     )
   ) 
-  ;; )
 )
 
 ;; (preprocesar-expresion '(X + . / Y% * Z) ['((10 (PRINT X))) [10 1] [] [] [] 0 '{X 5 Y% 2}])
 (defn preprocesar-expresion [expr amb]
-  ;; (prn (pr-str "preprocesar-expresion: expr=" expr " amb=" amb))
   (map #(procesar-elemento-expresion amb %) expr)
 )
 
@@ -1616,7 +1485,6 @@
 ; hasta llegar a un ")". Luego de eso filtra los elementos que no son comas "," y retorna verdadero
 ; si el tamaño del arreglo resultante es 2 (pues para 3 parametros se necesitan 3 comas)
 (defn es-mid-ternario [n expresion]
-  ;; (prn (str "es-mid-ternario: n=" n " expresion=" expresion))
   (= 
     2
     (count 
@@ -1633,7 +1501,6 @@
 
 ; Si antes de un + hay un: ), un numero, o un string entonces no es unario
 (defn es-mas-no-unario [anterior]
-  ;; (prn (str "es-mas-no-unario: anterior=" anterior))
   (and
     (not= :sin-anterior anterior)
     (or
@@ -1646,7 +1513,6 @@
 
 ; Si antes de un - hay un: ), un numero, o un string entonces no es unario
 (defn es-menos-no-unario [anterior]
-  ;; (prn (str "es-menos-no-unario: anterior=" anterior))
   (and
     (not= :sin-anterior anterior)
     (or
@@ -1658,8 +1524,6 @@
 )
 
 (defn desambiguar-elemento [n expresion]
-  ;; (prn (str "desambiguar-elemento: n=" n " expresion=" expresion))
-  ;; (prn (str "desambiguar-elemento: elemento-anterior=" (get expresion (- n 1) :sin-anterior) " elemento-actual=" (get expresion n :fin)))
   (let
     [
       elemento-anterior (get expresion (- n 1) :sin-anterior)
@@ -1691,13 +1555,10 @@
 )
 
 (defn desambiguar [expr]
-  ;; (prn (pr-str "desambiguar: expr=" expr))
-  ;; (spy2 "respuesta desambiguar: " 
   (filter 
     #(not (nil? %)) ; los nil son los "+" unarios, por eso los filtra
     (desambiguar-elemento 0 (vec expr))
   ) 
-  ;; )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1737,7 +1598,6 @@
 
     (= token (symbol "^")) 7
 
-    ;; (= token (symbol "-u")) 8
     (= token (symbol "-u")) 7
 
     (= token (symbol "MID$")) 9
@@ -1749,13 +1609,6 @@
     (= token (symbol "(")) nil
     (= token (symbol ")")) nil
 
-    ;; (= token (symbol "LEN")) 9
-    ;; (= token (symbol "INT")) 9
-    ;; (= token (symbol "ATN")) 9
-    ;; (= token (symbol "SIN")) 9
-    ;; (= token (symbol "ASC")) 9
-    ;; (= token (symbol "CHR$")) 9
-    ;; (= token (symbol "STR$")) 9
     :else 11
   )
 )
@@ -1789,12 +1642,6 @@
     (symbol "^") ;
     'OR ;
     'AND ;
-    ;; '=
-    ;; '<>
-    ;; '<
-    ;; '<=
-    ;; '>
-    ;; '>=
     'MID$ ;
   }
 )
@@ -1822,18 +1669,13 @@
 )
 
 (defn aridad [token]
-  ;; (spy2 "aridad respuesta: "
   (cond
-    ;; (contains? funciones_aridad_3 (str token)) 3
     (contains? funciones_aridad_3 token) 3
-    ;; (or (contains? funciones_aridad_2 (str token)) (operador? token)) 2
     (or (contains? funciones_aridad_2 token) (operador? token)) 2
-    ;; (contains? funciones_aridad_1 (str token)) 1
     (contains? funciones_aridad_1 token) 1
     (or (string? token) (number? token)) 0
     :else 0
   )
-  ;; )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1865,8 +1707,6 @@
 )
 
 (defn eliminar-cero-decimal [n]
-  ;; (prn (pr-str "eliminar-cero-decimal: n=" n))
-  ;; (spy2 "respuesta eliminar-cero-decimal: "  
   (cond
     (number? n)
       (if (es-entero? n)
@@ -1875,7 +1715,6 @@
       )
     :else n
   )  
-  ;; )
 )
 
 
@@ -1912,8 +1751,6 @@
 )
 
 (defn eliminar-cero-entero [n]
-  ;; (prn (pr-str "eliminar-cero-entero: n=" n))
-  ;; (spy2 "eliminar-cero-entero respuesta: "
   (cond
     (= false n) 0
     (= true n) 1
@@ -1921,10 +1758,8 @@
     (string? n) n
     (symbol? n) (str n)
     (es-entero? n) (str n)
-    ;; (string? n) n
     :else (eliminar-cero-inicial-en-decimal n)
   )
-  ;; )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
